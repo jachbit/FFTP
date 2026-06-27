@@ -334,7 +334,7 @@ footer strong { color: var(--orange); }
 
 <!-- VERSE BAR -->
 <div style="background:#071020; border-bottom:1px solid var(--border); padding:7px 24px; text-align:center; font-size:12px; font-weight:600; color:var(--yellow); letter-spacing:0.5px;">
-  ✝ Matt 6:33 &nbsp;&nbsp;|&nbsp;&nbsp; Jer 33:3 &nbsp;&nbsp;|&nbsp;&nbsp; Prov 3:5-6 &nbsp;&nbsp;|&nbsp;&nbsp; Prov 27:17
+  ✝ John 3:16 &nbsp;&nbsp;|&nbsp;&nbsp; 1 John 3:16 &nbsp;&nbsp;|&nbsp;&nbsp; Matt 6:33 &nbsp;&nbsp;|&nbsp;&nbsp; Jer 33:3 &nbsp;&nbsp;|&nbsp;&nbsp; Prov 3:5-6 &nbsp;&nbsp;|&nbsp;&nbsp; Prov 27:17
 </div>
 
 <!-- TABS -->
@@ -1683,6 +1683,9 @@ const PDF_CFG = {
     doc.setFontSize(6);
     doc.setTextColor(...c.grey);
     doc.text(`F.O.C.U.S.©  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
+    doc.setFontSize(5.5);
+    doc.setTextColor(...c.grey);
+    doc.text('John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17', W / 2, H - 1, { align: 'center' });
     doc.setTextColor(...c.navy);
     doc.text(`Page ${pageNum}`, W - 10, H - 4, { align: 'right' });
   },

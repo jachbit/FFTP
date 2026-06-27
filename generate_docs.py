@@ -85,8 +85,11 @@ def on_page(canvas, doc):
     canvas.rect(0, 22, PAGE_W, 1.5, fill=1, stroke=0)
     canvas.setFillColor(DARK_GREY)
     canvas.setFont("Helvetica", 7)
-    canvas.drawCentredString(PAGE_W / 2, 8,
+    canvas.drawCentredString(PAGE_W / 2, 14,
         "For educational and planning purposes only. Not financial advice. Trade responsibly.")
+    canvas.setFont("Helvetica", 6)
+    canvas.drawCentredString(PAGE_W / 2, 7,
+        "John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17")
     canvas.setFillColor(NAVY)
     canvas.drawRightString(PAGE_W - MARGIN_R, 8, f"Page {doc.page}")
     canvas.restoreState()
@@ -481,6 +484,11 @@ def build():
         sp(10),
         Paragraph(
             "For support or feedback, contact Jachbit 2026.", SMALL_S),
+        sp(8),
+        Paragraph(
+            "✝  John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17",
+            S("verses", fontName="Helvetica-Bold", fontSize=8, textColor=ORANGE,
+              leading=13, alignment=TA_CENTER)),
         sp(4),
         Paragraph(
             "For educational and planning purposes only. Not financial advice. Trade responsibly.",
