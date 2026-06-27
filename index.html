@@ -281,9 +281,11 @@ tr.contract-up td.contracts-cell { color: #fef9c3; font-weight: 700; }
 
 /* ── FOOTER ── */
 footer {
-  text-align: center; padding: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
   border-top: 1px solid var(--border);
   color: var(--text-dim); font-size: 11px;
+  flex-wrap: wrap; gap: 8px;
 }
 footer strong { color: var(--orange); }
 
@@ -880,8 +882,9 @@ footer strong { color: var(--orange); }
 </div><!-- end tab-disclaimer -->
 
 <footer>
-  <strong>F.O.C.U.S.©</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
-  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; MNQ/NQ &nbsp;|&nbsp; MES/ES &nbsp;|&nbsp; MGC/GC &nbsp;|&nbsp; M2K/RTY &nbsp;|&nbsp; MYM/YM &nbsp;|&nbsp; MCL/CL &nbsp;|&nbsp; SIL/SI
+  <span><strong>F.O.C.U.S.©</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
+  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; MNQ/NQ &nbsp;|&nbsp; MES/ES &nbsp;|&nbsp; MGC/GC &nbsp;|&nbsp; M2K/RTY &nbsp;|&nbsp; MYM/YM &nbsp;|&nbsp; MCL/CL &nbsp;|&nbsp; SIL/SI</span>
+  <span id="storageBadge"></span>
 </footer>
 
 <script>
@@ -2145,28 +2148,18 @@ function exportInstrumentsPDF() {
 
 // ─── STORAGE BADGE ───────────────────────────────────────────────────────
 function showStorageBadge() {
-  const existing = document.getElementById('storageBadge');
-  if (existing) existing.remove();
-  const badge = document.createElement('div');
-  badge.id = 'storageBadge';
-  badge.style.cssText = `
-    position:fixed; bottom:72px; right:16px; z-index:999;
-    background:#0f1b2d; border:1px solid #1e3a5f; border-radius:8px;
-    padding:8px 14px; font-size:11px; color:#8fa8c8;
-    display:flex; align-items:center; gap:10px; box-shadow:0 2px 12px rgba(0,0,0,0.5);
-  `;
-  const saved = localStorage.getItem(STORAGE_KEY);
-  const hasData = !!saved;
+  const badge = document.getElementById('storageBadge');
+  if (!badge) return;
   const logCount = logRows.length;
+  badge.style.cssText = 'display:flex;align-items:center;gap:8px;white-space:nowrap;';
   badge.innerHTML = `
     <span style="color:#22c55e;font-size:14px;">&#9679;</span>
-    <span>Auto-save <strong style="color:#fff;">ON</strong> &nbsp;|&nbsp; ${logCount} log row${logCount!==1?'s':''} saved locally</span>
+    <span style="color:#8fa8c8;">Auto-save <strong style="color:#fff;">ON</strong> &nbsp;|&nbsp; ${logCount} log row${logCount!==1?'s':''} saved locally</span>
     <button onclick="clearSavedData()" style="
       background:#7f1d1d;border:none;color:#fff;border-radius:4px;
-      padding:3px 8px;font-size:10px;cursor:pointer;margin-left:4px;
+      padding:3px 8px;font-size:10px;cursor:pointer;
     ">Clear</button>
   `;
-  document.body.appendChild(badge);
 }
 
 function clearSavedData() {
