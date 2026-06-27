@@ -302,6 +302,16 @@ footer strong { color: var(--orange); }
     <h1>F.O.C.U.S.<sup style="font-size:13px;vertical-align:super;">&copy;</sup> &mdash; Futures Trade Projections</h1>
     <p>Capital Doubling &amp; Contract Scaling Strategy &nbsp;&bull;&nbsp; 52-Week or More Roadmap</p>
   </div>
+
+  <div style="flex:1; text-align:center; padding:0 20px;">
+    <div style="color:var(--yellow); font-size:17px; font-weight:700; letter-spacing:1px;">
+      ⚠️ Disclaimer: TRADING IS RISKY!
+    </div>
+    <div style="color:var(--yellow); font-size:12px; font-weight:600; margin-top:4px;">
+      This is for educational purposes only and not financial advice.
+    </div>
+  </div>
+
   <div class="header-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
     <div><strong>Jachbit 2026</strong></div>
     <div id="todayDate"></div>
@@ -322,6 +332,7 @@ footer strong { color: var(--orange); }
   <button class="tab-btn" onclick="switchTab('log')">&#128221; Trading Log</button>
   <button class="tab-btn" onclick="switchTab('targets')">&#127919; Target Tables</button>
   <button class="tab-btn" id="btnPlan" onclick="switchTab('plan')">&#128196; Basic Trading Plan</button>
+  <button class="tab-btn" id="btnDisclaimer" onclick="switchTab('disclaimer')">&#9888; Disclaimer</button>
 </div>
 
 <!-- ═══════════════ TAB 1: PROJECTION ═══════════════ -->
@@ -825,6 +836,48 @@ footer strong { color: var(--orange); }
 
   </div>
 </div><!-- end tab-plan -->
+
+<!-- ═══════════════ TAB 5: DISCLAIMER ═══════════════ -->
+<div class="tab-panel" id="tab-disclaimer">
+  <div style="max-width:860px; margin:0 auto; padding:32px 24px;">
+
+    <!-- Title banner -->
+    <div style="text-align:center; margin-bottom:28px;">
+      <div style="font-size:26px; font-weight:700; color:var(--yellow); letter-spacing:1px;">⚠️ Disclaimer: Trading is Risky!</div>
+      <div style="margin-top:8px; color:var(--text-dim); font-size:13px;">Please read carefully before using this tool or making any trading decisions.</div>
+    </div>
+
+    <!-- Educational Purposes Only -->
+    <div style="background:#0f1b2d; border:1px solid var(--border); border-left:5px solid var(--orange); border-radius:6px; padding:20px 24px; margin-bottom:18px;">
+      <div style="font-size:16px; font-weight:700; color:var(--white); margin-bottom:10px;">Educational Purposes Only</div>
+      <p style="color:var(--white); font-size:14px; line-height:1.8; margin:0;">
+        This content is for educational, informational, and entertainment purposes only. The information provided does not constitute financial, investment, legal, or tax advice. No information or data presented herein should be construed as a solicitation, endorsement, or recommendation to buy, sell, or hold any security, cryptocurrency, or financial instrument.
+      </p>
+    </div>
+
+    <!-- High Risk of Investing -->
+    <div style="background:#0f1b2d; border:1px solid var(--border); border-left:5px solid var(--yellow); border-radius:6px; padding:20px 24px; margin-bottom:18px;">
+      <div style="font-size:16px; font-weight:700; color:var(--yellow); margin-bottom:10px;">⚠️ High Risk of Investing</div>
+      <p style="color:var(--white); font-size:14px; line-height:1.8; margin:0;">
+        Trading financial markets, including stocks, forex, options, and cryptocurrencies, involves substantial risk. <strong>You can lose some or all of your capital.</strong> Past performance is not indicative of future results. Leverage can magnify losses as well as gains.
+      </p>
+    </div>
+
+    <!-- No Responsibility -->
+    <div style="background:#1a0a0a; border:1px solid #c00; border-left:5px solid #ff4444; border-radius:6px; padding:20px 24px; margin-bottom:28px;">
+      <div style="font-size:16px; font-weight:700; color:#ff4444; margin-bottom:10px;">No Responsibility</div>
+      <p style="color:var(--white); font-size:14px; line-height:1.8; margin:0;">
+        The creator of this content assumes no liability or responsibility for any investment or trading decisions made based on the information provided. You must conduct your own research or consult with a licensed professional before making any financial decisions. <strong>You are solely responsible for your own money and risk.</strong>
+      </p>
+    </div>
+
+    <!-- Footer note -->
+    <div style="text-align:center; color:var(--text-dim); font-size:11px; padding-top:12px; border-top:1px solid var(--border);">
+      F.O.C.U.S.© Financial &amp; Trading Disclaimer &nbsp;|&nbsp; Jachbit 2026 &nbsp;|&nbsp; Not financial advice. Trade responsibly.
+    </div>
+
+  </div>
+</div><!-- end tab-disclaimer -->
 
 <footer>
   <strong>F.O.C.U.S.STOCKS</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
