@@ -1,6 +1,9 @@
 # Backups
 index_*.html
 
+# Timestamped PDFs (keep only FFTP_User_Guide.pdf)
+FFTP_User_Guide_*.pdf
+
 # OS
 .DS_Store
 Thumbs.db
