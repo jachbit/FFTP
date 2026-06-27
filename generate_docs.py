@@ -36,7 +36,7 @@ MARGIN_L = MARGIN_R = 48.0
 MARGIN_T = MARGIN_B = 52.0
 CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R
 
-PROJECT_TITLE = "F.O.C.U.S. — Futures Trade Projections (FFTP)"
+PROJECT_TITLE = "F.O.C.U.S.© — Futures Trade Projections (FFTP)"
 NOW_STR  = datetime.now().strftime("%Y-%m-%d %H:%M")
 DATE_STR = datetime.now().strftime("%Y-%m-%d")
 

@@ -1480,7 +1480,7 @@ const PDF_CFG = {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6);
     doc.setTextColor(...c.grey);
-    doc.text(`F.O.C.U.S.  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
+    doc.text(`F.O.C.U.S.©  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
     doc.setTextColor(...c.navy);
     doc.text(`Page ${pageNum}`, W - 10, H - 4, { align: 'right' });
   },
@@ -1522,7 +1522,7 @@ function exportPDF() {
   const H = doc.internal.pageSize.getHeight();
 
   let y = PDF_CFG.header(doc, W,
-    'F.O.C.U.S. — Futures Trade Projections',
+    'F.O.C.U.S.© — Futures Trade Projections',
     `Capital Doubling & Contract Scaling Strategy  |  ${numWeeks}-Week or More Roadmap`
   );
 
@@ -1600,7 +1600,7 @@ function exportLogPDF() {
   });
 
   let y = PDF_CFG.header(doc, W,
-    'F.O.C.U.S. — Daily Trading Log',
+    'F.O.C.U.S.© — Daily Trading Log',
     'Capital Doubling & Contract Scaling Strategy'
   );
 
@@ -1861,7 +1861,7 @@ function exportSharesPDF() {
   const { moves, sizes } = sharesData;
 
   let y = PDF_CFG.header(doc, W,
-    'F.O.C.U.S. — Stock Scalping Share Sizing',
+    'F.O.C.U.S.© — Stock Scalping Share Sizing',
     'Profit = Price Move × Shares  |  Jachbit 2026'
   );
 
@@ -1913,7 +1913,7 @@ function exportGoalsPDF() {
   const H = doc.internal.pageSize.getHeight();
 
   const y = PDF_CFG.header(doc, W,
-    'F.O.C.U.S. — Income Goals',
+    'F.O.C.U.S.© — Income Goals',
     'Capital Doubling & Contract Scaling Strategy'
   );
 
@@ -1945,7 +1945,7 @@ function exportInstrumentsPDF() {
   const H = doc.internal.pageSize.getHeight();
 
   const y = PDF_CFG.header(doc, W,
-    'F.O.C.U.S. — Instrument Values',
+    'F.O.C.U.S.© — Instrument Values',
     'Futures Contract Reference Sheet'
   );
 
