@@ -979,7 +979,6 @@ function loadState() {
 })();
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('todayDate').textContent = formatDisplayDate(new Date());
   const loaded = loadState();
   if (!loaded) {
     document.getElementById('startDate').value = toInputDate(new Date());
