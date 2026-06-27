@@ -298,7 +298,8 @@ def build():
         bullet("Starting Contracts: how many contracts to begin with (default 1). Each upgrade adds this same number."),
         bullet("Trades / Week: how many trading days per week (1–5, default 5). Use 3x if your model only appears Mon/Wed/Fri, or 2x for a light schedule. "
                "This scales weekly profit and auto-calculates Annual Targets in the Tables tab accordingly."),
-        bullet("Weeks to Project: default 52 (1 year)"),
+        bullet("Weeks to Project: default 52 (1 year). You can enter more — e.g. 104 for a 2-year roadmap. "
+               "The header and PDF will reflect your chosen number (e.g. '104-Week or More Roadmap')."),
         sp(8),
         Paragraph("<b>Risk Calculator strip:</b>", BODY_S), sp(4),
         Paragraph(
@@ -380,7 +381,7 @@ def build():
         [Paragraph("TABLE", TH_S), Paragraph("COLUMNS / STRUCTURE", TH_S), Paragraph("NOTES", TH_S)],
         [Paragraph("Income Goals", TD_B),
          Paragraph("Year · Daily Target ($) · Annual Target ($) · Age · Notes", TD_L),
-         Paragraph("Annual auto-calculates as Daily × 240 trading days. Editable to override. Change Year in row 1 — all rows cascade automatically.", TD_L)],
+         Paragraph("Annual auto-calculates as Daily × 52 weeks × Trades/Week setting. Editable to override. Change Year in row 1 — all rows cascade automatically.", TD_L)],
         [Paragraph("Instrument Values", TD_B),
          Paragraph("Instrument · Tick ($) · Point ($) · # Ticks/Point · Notes", TD_L),
          Paragraph("Reference sheet for all 14 supported futures contracts. All cells editable.", TD_L)],
@@ -459,6 +460,9 @@ def build():
         [Paragraph("PDF Export", TD_B),
          Paragraph("Click Export PDF on any tab", TD_L),
          Paragraph("Generates a white-background PDF: Projection, Log, Goals, Instruments, or Share Sizing", TD_L)],
+        [Paragraph("Download User Guide", TD_B),
+         Paragraph("Click the orange 'Download User Guide' button at the top-right of the header", TD_L),
+         Paragraph("Downloads this PDF documentation directly from GitHub — always the latest version", TD_L)],
     ]
     save_t = Table(save_data, colWidths=[CONTENT_W*0.18, CONTENT_W*0.37, CONTENT_W*0.45])
     save_t.setStyle(std_table_style())

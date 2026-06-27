@@ -300,11 +300,19 @@ footer strong { color: var(--orange); }
 <header>
   <div class="header-left">
     <h1>F.O.C.U.S. &mdash; Futures Trade Projections</h1>
-    <p>Capital Doubling &amp; Contract Scaling Strategy &nbsp;&bull;&nbsp; 52-Week Roadmap</p>
+    <p>Capital Doubling &amp; Contract Scaling Strategy &nbsp;&bull;&nbsp; 52-Week or More Roadmap</p>
   </div>
-  <div class="header-right">
+  <div class="header-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
     <div><strong>Jachbit 2026</strong></div>
-    <div id="todayDate" style="margin-top:3px;"></div>
+    <div id="todayDate"></div>
+    <a href="https://raw.githubusercontent.com/jachbit/FFTP/main/FFTP_User_Guide.pdf"
+       target="_blank" download="FFTP_User_Guide.pdf"
+       style="display:inline-block;margin-top:4px;padding:4px 12px;
+              background:var(--orange);color:var(--white);border-radius:4px;
+              font-size:11px;font-weight:700;text-decoration:none;letter-spacing:0.4px;
+              white-space:nowrap;">
+      &#128196; Download User Guide
+    </a>
   </div>
 </header>
 
@@ -1515,7 +1523,7 @@ function exportPDF() {
 
   let y = PDF_CFG.header(doc, W,
     'F.O.C.U.S. — Futures Trade Projections',
-    `Capital Doubling & Contract Scaling Strategy  |  ${numWeeks}-Week Roadmap`
+    `Capital Doubling & Contract Scaling Strategy  |  ${numWeeks}-Week or More Roadmap`
   );
 
   y = PDF_CFG.summaryStrip(doc, W, y, [
