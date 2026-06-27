@@ -213,38 +213,57 @@ def build():
     rule_data = [
         [Paragraph("RULE", TH_S), Paragraph("DETAIL", TH_S)],
         [Paragraph("Starting point", TD_B),
-         Paragraph("Begin with 1 contract at your chosen Starting Capital (e.g. $1,500)", TD_L)],
-        [Paragraph("When to add 1 contract", TD_B),
-         Paragraph("Each time your running equity grows by another $1,500 (one full starting-capital increment of profit)", TD_L)],
+         Paragraph("Begin with your chosen Starting Contracts at your Starting Capital. Default is 1 contract — e.g. 3 contracts at $5,000.", TD_L)],
+        [Paragraph("When to add contracts", TD_B),
+         Paragraph("Each time your running equity grows by another Starting Capital increment of profit, add Starting Contracts more.", TD_L)],
         [Paragraph("Maximum increment per week", TD_B),
-         Paragraph("Always +1 only — even if you earn $3,000 in one week, you still only add 1 contract that week", TD_L)],
+         Paragraph("Always one level only — even if a big week crosses multiple thresholds, only one upgrade fires per week.", TD_L)],
         [Paragraph("Never skip levels", TD_B),
-         Paragraph("The app enforces this automatically — you cannot jump from 3 to 5 contracts in one step", TD_L)],
+         Paragraph("The app enforces this automatically — you earn each contract increment one step at a time.", TD_L)],
+        [Paragraph("Flexible scaling", TD_B),
+         Paragraph("Set Starting Contracts = 1 for the most conservative plan (+1 each upgrade). Set to 3 for faster scaling (+3 each upgrade). The discipline is the same either way.", TD_L)],
         [Paragraph("Why?", TD_B),
-         Paragraph("Prevents over-leveraging during a hot streak. Capital growth is earned contract by contract.", TD_L)],
+         Paragraph("Prevents over-leveraging during a hot streak. Capital growth is earned contract by contract, level by level.", TD_L)],
     ]
     rule_t = Table(rule_data, colWidths=[CONTENT_W * 0.28, CONTENT_W * 0.72])
     rule_t.setStyle(std_table_style())
-    story += [rule_t, sp(6),
-        Paragraph(
-            "Example with $1,500 starting capital on MNQ:", BOLD_S),
+    story += [rule_t, sp(8)]
+
+    # Two side-by-side examples
+    ex_label_s = S("exl", fontName="Helvetica-Bold", fontSize=8.5, textColor=NAVY, leading=12)
+    story += [
+        Paragraph("Example A — Conservative: $1,500 capital, Starting Contracts = 1 (MNQ, 16 pts/day)", ex_label_s),
         sp(4),
     ]
-
-    ex_data = [
+    ex_data_a = [
         [Paragraph("Running Equity", TH_S), Paragraph("Profit Earned", TH_S),
-         Paragraph("Contracts", TH_S), Paragraph("Pts/Day @ $2/pt", TH_S)],
-        [Paragraph("$1,500", TD_S), Paragraph("$0", TD_S), Paragraph("1", TD_O), Paragraph("16 pts = $32/day", TD_S)],
-        [Paragraph("$3,000", TD_S), Paragraph("$1,500", TD_S), Paragraph("2", TD_G), Paragraph("16 pts = $64/day", TD_S)],
-        [Paragraph("$4,500", TD_S), Paragraph("$3,000", TD_S), Paragraph("3", TD_G), Paragraph("16 pts = $96/day", TD_S)],
-        [Paragraph("$6,000", TD_S), Paragraph("$4,500", TD_S), Paragraph("4", TD_G), Paragraph("16 pts = $128/day", TD_S)],
-        [Paragraph("$9,000", TD_S), Paragraph("$7,500", TD_S), Paragraph("6", TD_G), Paragraph("16 pts = $192/day", TD_S)],
-        [Paragraph("$15,000", TD_S), Paragraph("$13,500", TD_S), Paragraph("10", TD_G), Paragraph("16 pts = $320/day", TD_S)],
+         Paragraph("Contracts", TH_S), Paragraph("Daily Profit @ $2/pt", TH_S)],
+        [Paragraph("$1,500", TD_S), Paragraph("$0",     TD_S), Paragraph("1",  TD_O), Paragraph("16 pts = $32/day",  TD_S)],
+        [Paragraph("$3,000", TD_S), Paragraph("$1,500", TD_S), Paragraph("2",  TD_G), Paragraph("16 pts = $64/day",  TD_S)],
+        [Paragraph("$4,500", TD_S), Paragraph("$3,000", TD_S), Paragraph("3",  TD_G), Paragraph("16 pts = $96/day",  TD_S)],
+        [Paragraph("$6,000", TD_S), Paragraph("$4,500", TD_S), Paragraph("4",  TD_G), Paragraph("16 pts = $128/day", TD_S)],
+        [Paragraph("$7,500", TD_S), Paragraph("$6,000", TD_S), Paragraph("5",  TD_G), Paragraph("16 pts = $160/day", TD_S)],
+        [Paragraph("$9,000", TD_S), Paragraph("$7,500", TD_S), Paragraph("6",  TD_G), Paragraph("16 pts = $192/day", TD_S)],
     ]
-    col4 = [CONTENT_W * 0.25] * 4
-    ex_t = Table(ex_data, colWidths=col4)
-    ex_t.setStyle(std_table_style())
-    story += [ex_t, sp(10)]
+    ex_t_a = Table(ex_data_a, colWidths=[CONTENT_W*0.25]*4)
+    ex_t_a.setStyle(std_table_style())
+    story += [ex_t_a, sp(8),
+        Paragraph("Example B — Faster scaling: $5,000 capital, Starting Contracts = 3 (MNQ, 16 pts/day)", ex_label_s),
+        sp(4),
+    ]
+    ex_data_b = [
+        [Paragraph("Running Equity", TH_S), Paragraph("Profit Earned", TH_S),
+         Paragraph("Contracts", TH_S), Paragraph("Daily Profit @ $2/pt", TH_S)],
+        [Paragraph("$5,000",  TD_S), Paragraph("$0",      TD_S), Paragraph("3",  TD_O), Paragraph("16 pts = $96/day",  TD_S)],
+        [Paragraph("$10,000", TD_S), Paragraph("$5,000",  TD_S), Paragraph("6",  TD_G), Paragraph("16 pts = $192/day", TD_S)],
+        [Paragraph("$15,000", TD_S), Paragraph("$10,000", TD_S), Paragraph("9",  TD_G), Paragraph("16 pts = $288/day", TD_S)],
+        [Paragraph("$20,000", TD_S), Paragraph("$15,000", TD_S), Paragraph("12", TD_G), Paragraph("16 pts = $384/day", TD_S)],
+        [Paragraph("$25,000", TD_S), Paragraph("$20,000", TD_S), Paragraph("15", TD_G), Paragraph("16 pts = $480/day", TD_S)],
+        [Paragraph("$30,000", TD_S), Paragraph("$25,000", TD_S), Paragraph("18", TD_G), Paragraph("16 pts = $576/day", TD_S)],
+    ]
+    ex_t_b = Table(ex_data_b, colWidths=[CONTENT_W*0.25]*4)
+    ex_t_b.setStyle(std_table_style())
+    story += [ex_t_b, sp(10)]
 
     # ── Three Tabs ────────────────────────────────────────────────────────────
     story.append(section_bar("THE THREE TABS"))
@@ -272,10 +291,11 @@ def build():
         Paragraph("<b>Setup inputs (top bar):</b>", BODY_S), sp(4),
         bullet("Instrument: choose MNQ/NQ (Nasdaq) or MES/ES (S&amp;P 500)"),
         bullet("Contract Size: Micro or Mini"),
-        bullet("Starting Capital ($): your account size — this determines when you add contracts"),
+        bullet("Starting Capital ($): your account size — this is also the profit increment that triggers a contract upgrade"),
         bullet("Risk % Per Day: shows your max daily risk in dollars and suggested points target"),
         bullet("Daily Points Target: how many points you aim to capture per trading day"),
         bullet("Plan Start Date: the Monday your plan begins — weekly dates auto-fill"),
+        bullet("Starting Contracts: how many contracts to begin with (default 1). Each upgrade adds this same number."),
         bullet("Weeks to Project: default 52 (1 year)"),
         sp(8),
         Paragraph("<b>Risk Calculator strip:</b>", BODY_S), sp(4),
