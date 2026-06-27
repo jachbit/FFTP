@@ -305,12 +305,30 @@ def build():
             "It tracks your real running equity and tells you exactly when to size up.", BODY_S),
         sp(8),
         Paragraph("<b>Each log row contains:</b>", BODY_S), sp(4),
-        bullet("Date · No Trade checkbox · Instrument (MNQ / NQ / MES / ES)"),
+        bullet("Date · No Trade checkbox · Instrument (all 14 contracts supported)"),
         bullet("Target Pts — your planned daily points"),
-        bullet("Actual Pts — what you really made (or lost — enter negative numbers for losing days)"),
+        bullet("Actual Pts — what you really captured (positive for wins, negative for losses)"),
         bullet("Contracts · Fees ($) · Notes"),
-        bullet("Gross P&amp;L, Net P&amp;L, and vs Plan calculated automatically"),
+        bullet("Gross P&L, Net P&L, and vs Plan calculated automatically per row"),
         sp(8),
+    ]
+
+    # Winning / Losing / No Trade table
+    wl_data = [
+        [Paragraph("SCENARIO", TH_S), Paragraph("WHAT TO ENTER", TH_S), Paragraph("RESULT", TH_S)],
+        [Paragraph("Winning day", S("w", fontName="Helvetica-Bold", fontSize=8, textColor=GREEN_DARK, leading=11)),
+         Paragraph("Enter a <b>positive</b> number in Actual Pts — e.g. +12", TD_L),
+         Paragraph("P&L shown in green, added to running equity", TD_L)],
+        [Paragraph("Losing day", S("l", fontName="Helvetica-Bold", fontSize=8, textColor=RED_DARK, leading=11)),
+         Paragraph("Enter a <b>negative</b> number in Actual Pts — e.g. -8", TD_L),
+         Paragraph("P&L shown in red, deducted from running equity", TD_L)],
+        [Paragraph("No trade", S("n", fontName="Helvetica-Bold", fontSize=8, textColor=DARK_GREY, leading=11)),
+         Paragraph("Tick the <b>No Trade</b> checkbox", TD_L),
+         Paragraph("Row is greyed out, zero P&L, equity unchanged", TD_L)],
+    ]
+    wl_t = Table(wl_data, colWidths=[CONTENT_W*0.18, CONTENT_W*0.42, CONTENT_W*0.40])
+    wl_t.setStyle(std_table_style())
+    story += [wl_t, sp(8),
         Paragraph("<b>Milestone alerts:</b>", BODY_S), sp(4),
         Paragraph(
             "A green banner appears in the log <i>after</i> the trade row that pushed your "
@@ -337,17 +355,38 @@ def build():
     ]
 
     tgt_data = [
-        [Paragraph("TABLE", TH_S), Paragraph("COLUMNS", TH_S), Paragraph("NOTES", TH_S)],
+        [Paragraph("TABLE", TH_S), Paragraph("COLUMNS / STRUCTURE", TH_S), Paragraph("NOTES", TH_S)],
         [Paragraph("Income Goals", TD_B),
          Paragraph("Year · Daily Target ($) · Annual Target ($) · Age · Notes", TD_L),
-         Paragraph("Annual auto-calculates as Daily × 240 trading days. Fully editable to override. Change Year in row 1 and all rows cascade automatically.", TD_L)],
+         Paragraph("Annual auto-calculates as Daily × 240 trading days. Editable to override. Change Year in row 1 — all rows cascade automatically.", TD_L)],
         [Paragraph("Instrument Values", TD_B),
          Paragraph("Instrument · Tick ($) · Point ($) · # Ticks/Point · Notes", TD_L),
-         Paragraph("Reference sheet for all supported futures contracts. All cells editable.", TD_L)],
+         Paragraph("Reference sheet for all 14 supported futures contracts. All cells editable.", TD_L)],
+        [Paragraph("Stock Scalping Share Sizing", TD_B),
+         Paragraph("Matrix: Price Move (rows) × Shares (columns) = Profit ($)", TD_L),
+         Paragraph("Add/remove rows and columns freely. Values auto-calculated. PDF export available.", TD_L)],
     ]
-    tgt_t = Table(tgt_data, colWidths=[CONTENT_W*0.18, CONTENT_W*0.37, CONTENT_W*0.45])
+    tgt_t = Table(tgt_data, colWidths=[CONTENT_W*0.22, CONTENT_W*0.37, CONTENT_W*0.41])
     tgt_t.setStyle(std_table_style())
-    story += [tgt_t, sp(10)]
+    story += [tgt_t, sp(8),
+        Paragraph("<b>Stock Scalping Share Sizing — sample (default values):</b>", BODY_S), sp(4),
+    ]
+
+    # Share sizing sample matrix
+    share_moves = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
+    share_sizes = [200, 300, 400, 500, 1000, 2000, 3000]
+    sh_head = [Paragraph("MOVE ↓ / SHARES →", TH_S)] + [Paragraph(str(s), TH_S) for s in share_sizes]
+    sh_body = []
+    for m in share_moves:
+        row = [Paragraph(f"${m:.2f}", S("mo", fontName="Helvetica-Bold", fontSize=8, textColor=ORANGE, leading=11))]
+        for s in share_sizes:
+            profit = int(m * s)
+            row.append(Paragraph(f"${profit:,}", S("pr", fontName="Helvetica-Bold", fontSize=8, textColor=GREEN_DARK, leading=11)))
+        sh_body.append(row)
+    sh_cw = [CONTENT_W * 0.14] + [CONTENT_W * 0.86 / len(share_sizes)] * len(share_sizes)
+    sh_t = Table([sh_head] + sh_body, colWidths=sh_cw)
+    sh_t.setStyle(std_table_style())
+    story += [sh_t, sp(10)]
 
     # ── Instruments Supported ─────────────────────────────────────────────────
     story.append(section_bar("SUPPORTED INSTRUMENTS"))
@@ -370,7 +409,7 @@ def build():
     ins_t.setStyle(std_table_style())
     story += [ins_t,
         sp(6),
-        Paragraph("Note: 10 Micros = 1 Mini for all instruments.", SMALL_S),
+        Paragraph("Note: 10 Micros = 1 Mini for most instruments (MYM/YM is 5:1).", SMALL_S),
         sp(10),
     ]
 
@@ -394,7 +433,7 @@ def build():
          Paragraph("Downloads all your trade log entries", TD_L)],
         [Paragraph("PDF Export", TD_B),
          Paragraph("Click Export PDF on any tab", TD_L),
-         Paragraph("Generates a white-background PDF: Projection, Log, Goals, or Instruments", TD_L)],
+         Paragraph("Generates a white-background PDF: Projection, Log, Goals, Instruments, or Share Sizing", TD_L)],
     ]
     save_t = Table(save_data, colWidths=[CONTENT_W*0.18, CONTENT_W*0.37, CONTENT_W*0.45])
     save_t.setStyle(std_table_style())
