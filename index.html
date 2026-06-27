@@ -385,6 +385,12 @@ footer strong { color: var(--orange); }
         <input type="number" id="numWeeks" value="52" min="4" max="104" step="4" onchange="recalculate()">
       </div>
 
+      <div class="ctrl-group">
+        <label>Starting Contracts</label>
+        <input type="number" id="startContracts" value="1" min="1" step="1" onchange="recalculate()"
+          title="Number of contracts to start with. Each time you earn another Starting Capital, this many contracts are added.">
+      </div>
+
     </div>
     <!-- Risk Calc Strip -->
     <div id="riskCalcStrip" style="
@@ -708,7 +714,8 @@ function saveState() {
     startCapital: document.getElementById('startCapital').value,
     dailyPts:     document.getElementById('dailyPts').value,
     startDate:    document.getElementById('startDate').value,
-    numWeeks:     document.getElementById('numWeeks').value,
+    numWeeks:       document.getElementById('numWeeks').value,
+    startContracts: document.getElementById('startContracts').value,
     dateOverrides,
     logRows,
     logStartCap: document.getElementById('logStartCap') ? document.getElementById('logStartCap').value : 1500,
@@ -732,7 +739,8 @@ function loadState() {
     if (state.startCapital) document.getElementById('startCapital').value = state.startCapital;
     if (state.dailyPts)     document.getElementById('dailyPts').value     = state.dailyPts;
     if (state.startDate)    document.getElementById('startDate').value    = state.startDate;
-    if (state.numWeeks)     document.getElementById('numWeeks').value     = state.numWeeks;
+    if (state.numWeeks)       document.getElementById('numWeeks').value       = state.numWeeks;
+    if (state.startContracts) document.getElementById('startContracts').value = state.startContracts;
     if (state.dateOverrides)   dateOverrides   = state.dateOverrides;
     if (state.logRows)         logRows         = state.logRows;
     if (state.goalsData)       goalsData       = state.goalsData;
@@ -854,7 +862,8 @@ function recalculate() {
   let prevContracts = 0;
   // Conservative scaling: +1 contract only when equity crosses the NEXT
   // $startCap threshold — never skips a level even in a big profit week.
-  let contractLevel = 1;
+  const startContracts = Math.max(1, parseInt(document.getElementById('startContracts').value) || 1);
+  let contractLevel = startContracts;
   let nextUpgrade = startCap * 2; // first upgrade when equity hits 2× startCap
 
   for (let w = 1; w <= numWeeks; w++) {
@@ -863,7 +872,7 @@ function recalculate() {
     const isMonthEnd = (w % 4 === 0) || (w === numWeeks);
     // Advance exactly one level if equity reached the next threshold
     if (equity >= nextUpgrade) {
-      contractLevel++;
+      contractLevel += startContracts;
       nextUpgrade += startCap;
     }
     const contracts = contractLevel;
