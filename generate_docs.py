@@ -159,7 +159,7 @@ def build():
     # ── Title Block ───────────────────────────────────────────────────────────
     story += [
         sp(10),
-        Paragraph("F.O.C.U.S.STOCKS", CSUB_S),
+        Paragraph("F.O.C.U.S.<super>©</super>  :  Find Only Charts Unicorn Setup", CSUB_S),
         sp(6),
         Paragraph("Futures Trade Projections", CTIT_S),
         sp(4),
