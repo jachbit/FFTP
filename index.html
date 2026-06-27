@@ -324,10 +324,18 @@ footer strong { color: var(--orange); }
 
       <div class="ctrl-group">
         <label>Instrument</label>
-        <div class="instrument-toggle">
-          <button id="btnMNQ" class="active" onclick="setInstrument('MNQ')">MNQ / NQ</button>
-          <button id="btnMES" onclick="setInstrument('MES')">MES / ES</button>
-        </div>
+        <select id="instrumentSelect" onchange="setInstrument(this.value)"
+          style="background:#0a1628;border:1px solid var(--border);color:var(--white);
+                 border-radius:6px;padding:7px 10px;font-size:13px;font-weight:700;
+                 outline:none;cursor:pointer;min-width:130px;">
+          <option value="MNQ">MNQ / NQ — Nasdaq</option>
+          <option value="MES">MES / ES — S&amp;P 500</option>
+          <option value="MGC">MGC / GC — Gold</option>
+          <option value="M2K">M2K / RTY — Russell</option>
+          <option value="MYM">MYM / YM — Dow</option>
+          <option value="MCL">MCL / CL — Crude Oil</option>
+          <option value="SIL">SIL / SI — Silver</option>
+        </select>
       </div>
 
       <div class="ctrl-group">
@@ -647,14 +655,19 @@ footer strong { color: var(--orange); }
 
 <footer>
   <strong>F.O.C.U.S.STOCKS</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
-  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; 10 Micros = 1 Mini (MNQ/NQ) &nbsp;|&nbsp; 10 Micros = 1 Mini (MES/ES)
+  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; MNQ/NQ &nbsp;|&nbsp; MES/ES &nbsp;|&nbsp; MGC/GC &nbsp;|&nbsp; M2K/RTY &nbsp;|&nbsp; MYM/YM &nbsp;|&nbsp; MCL/CL &nbsp;|&nbsp; SIL/SI
 </footer>
 
 <script>
 // ─── STATE ───────────────────────────────────────────────────────────────
 const INSTRUMENTS = {
-  MNQ: { micro: 'MNQ', mini: 'NQ',  microPV: 2,  miniPV: 20,  microPerMini: 10 },
-  MES: { micro: 'MES', mini: 'ES',  microPV: 5,  miniPV: 50,  microPerMini: 10 }
+  MNQ: { micro: 'MNQ', mini: 'NQ',  microPV: 2,   miniPV: 20,   microPerMini: 10 },
+  MES: { micro: 'MES', mini: 'ES',  microPV: 5,   miniPV: 50,   microPerMini: 10 },
+  MGC: { micro: 'MGC', mini: 'GC',  microPV: 10,  miniPV: 100,  microPerMini: 10 },
+  M2K: { micro: 'M2K', mini: 'RTY', microPV: 5,   miniPV: 50,   microPerMini: 10 },
+  MYM: { micro: 'MYM', mini: 'YM',  microPV: 1,   miniPV: 5,    microPerMini: 5  },
+  MCL: { micro: 'MCL', mini: 'CL',  microPV: 100, miniPV: 1000, microPerMini: 10 },
+  SIL: { micro: 'SIL', mini: 'SI',  microPV: 500, miniPV: 5000, microPerMini: 10 },
 };
 let currentInstrument = 'MNQ';
 let currentSize = 'micro'; // 'micro' or 'mini'
@@ -692,8 +705,7 @@ function loadState() {
     currentSize = state.size || 'micro';
     document.getElementById('btnMicro').classList.toggle('active', currentSize === 'micro');
     document.getElementById('btnMini').classList.toggle('active',  currentSize === 'mini');
-    document.getElementById('btnMNQ').classList.toggle('active', currentInstrument === 'MNQ');
-    document.getElementById('btnMES').classList.toggle('active', currentInstrument === 'MES');
+    document.getElementById('instrumentSelect').value = currentInstrument;
     if (state.startCapital) document.getElementById('startCapital').value = state.startCapital;
     if (state.dailyPts)     document.getElementById('dailyPts').value     = state.dailyPts;
     if (state.startDate)    document.getElementById('startDate').value    = state.startDate;
@@ -746,8 +758,7 @@ function activeContractName() {
 
 function setInstrument(ins) {
   currentInstrument = ins;
-  document.getElementById('btnMNQ').classList.toggle('active', ins === 'MNQ');
-  document.getElementById('btnMES').classList.toggle('active', ins === 'MES');
+  document.getElementById('instrumentSelect').value = ins;
   updateInstrumentLabels();
   updateRiskCalc();
   recalculate();
@@ -1026,7 +1037,11 @@ function editDate(weekNum, cell) {
 
 // ─── INSTRUMENT POINT VALUE MAP ──────────────────────────────────────────
 function getInstrumentPV(instrument) {
-  const pvMap = { MNQ: 2, NQ: 20, MES: 5, ES: 50 };
+  const pvMap = {
+    MNQ:2, NQ:20, MES:5, ES:50,
+    MGC:10, GC:100, M2K:5, RTY:50,
+    MYM:1, YM:5, MCL:100, CL:1000, SIL:500, SI:5000
+  };
   return pvMap[instrument] || 2;
 }
 
@@ -1114,10 +1129,34 @@ function renderLogTable() {
       <td><input type="checkbox" class="no-trade-chk" ${row.noTrade?'checked':''} onchange="updateLogField(${row.id},'noTrade',this.checked);renderLogTable()"></td>
       <td>
         <select onchange="updateLogField(${row.id},'instrument',this.value);renderLogTable()">
-          <option value="MNQ" ${row.instrument==='MNQ'?'selected':''}>MNQ</option>
-          <option value="NQ"  ${row.instrument==='NQ' ?'selected':''}>NQ</option>
-          <option value="MES" ${row.instrument==='MES'?'selected':''}>MES</option>
-          <option value="ES"  ${row.instrument==='ES' ?'selected':''}>ES</option>
+          <optgroup label="Nasdaq">
+            <option value="MNQ" ${row.instrument==='MNQ'?'selected':''}>MNQ</option>
+            <option value="NQ"  ${row.instrument==='NQ' ?'selected':''}>NQ</option>
+          </optgroup>
+          <optgroup label="S&amp;P 500">
+            <option value="MES" ${row.instrument==='MES'?'selected':''}>MES</option>
+            <option value="ES"  ${row.instrument==='ES' ?'selected':''}>ES</option>
+          </optgroup>
+          <optgroup label="Gold">
+            <option value="MGC" ${row.instrument==='MGC'?'selected':''}>MGC</option>
+            <option value="GC"  ${row.instrument==='GC' ?'selected':''}>GC</option>
+          </optgroup>
+          <optgroup label="Russell">
+            <option value="M2K" ${row.instrument==='M2K'?'selected':''}>M2K</option>
+            <option value="RTY" ${row.instrument==='RTY'?'selected':''}>RTY</option>
+          </optgroup>
+          <optgroup label="Dow">
+            <option value="MYM" ${row.instrument==='MYM'?'selected':''}>MYM</option>
+            <option value="YM"  ${row.instrument==='YM' ?'selected':''}>YM</option>
+          </optgroup>
+          <optgroup label="Crude Oil">
+            <option value="MCL" ${row.instrument==='MCL'?'selected':''}>MCL</option>
+            <option value="CL"  ${row.instrument==='CL' ?'selected':''}>CL</option>
+          </optgroup>
+          <optgroup label="Silver">
+            <option value="SIL" ${row.instrument==='SIL'?'selected':''}>SIL</option>
+            <option value="SI"  ${row.instrument==='SI' ?'selected':''}>SI</option>
+          </optgroup>
         </select>
       </td>
       <td><input type="number" value="${row.targetPts}" step="0.5" onchange="updateLogField(${row.id},'targetPts',this.value)" ${row.noTrade?'disabled':''}></td>
