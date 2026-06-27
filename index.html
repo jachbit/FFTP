@@ -890,10 +890,16 @@ footer strong { color: var(--orange); }
   </div>
 </div><!-- end tab-disclaimer -->
 
-<footer>
-  <span><strong>F.O.C.U.S.©</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
-  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; MNQ/NQ &nbsp;|&nbsp; MES/ES &nbsp;|&nbsp; MGC/GC &nbsp;|&nbsp; M2K/RTY &nbsp;|&nbsp; MYM/YM &nbsp;|&nbsp; MCL/CL &nbsp;|&nbsp; SIL/SI</span>
-  <span id="storageBadge"></span>
+<footer style="flex-direction:column;gap:4px;padding:10px 16px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;gap:8px;">
+    <span><strong>F.O.C.U.S.©</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
+    Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; MNQ/NQ &nbsp;|&nbsp; MES/ES &nbsp;|&nbsp; MGC/GC &nbsp;|&nbsp; M2K/RTY &nbsp;|&nbsp; MYM/YM &nbsp;|&nbsp; MCL/CL &nbsp;|&nbsp; SIL/SI</span>
+    <span id="storageBadge"></span>
+  </div>
+  <div style="width:100%;text-align:center;font-size:10px;color:var(--text-dim);border-top:1px solid var(--border);padding-top:5px;margin-top:2px;">
+    &copy; 2026 Jachbit. All rights reserved. This tool is the intellectual property of Jachbit 2026 and may not be copied, distributed, or shared without the express written consent of the publisher. &nbsp;&bull;&nbsp;
+    <a href="https://linktr.ee/jachbit" target="_blank" style="color:var(--orange);font-weight:700;text-decoration:none;">linktr.ee/jachbit</a>
+  </div>
 </footer>
 
 <script>
@@ -1685,7 +1691,9 @@ const PDF_CFG = {
     doc.text(`F.O.C.U.S.©  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
     doc.setFontSize(5.5);
     doc.setTextColor(...c.grey);
-    doc.text('John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17', W / 2, H - 1, { align: 'center' });
+    doc.text('John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17', W / 2, H - 2.5, { align: 'center' });
+    doc.setFontSize(5);
+    doc.text('© 2026 Jachbit. All rights reserved. May not be copied or shared without express written consent of the publisher.  linktr.ee/jachbit', W / 2, H - 0.5, { align: 'center' });
     doc.setTextColor(...c.navy);
     doc.text(`Page ${pageNum}`, W - 10, H - 4, { align: 'right' });
   },

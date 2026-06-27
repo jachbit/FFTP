@@ -88,8 +88,11 @@ def on_page(canvas, doc):
     canvas.drawCentredString(PAGE_W / 2, 14,
         "For educational and planning purposes only. Not financial advice. Trade responsibly.")
     canvas.setFont("Helvetica", 6)
-    canvas.drawCentredString(PAGE_W / 2, 7,
+    canvas.drawCentredString(PAGE_W / 2, 12,
         "John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17")
+    canvas.setFont("Helvetica", 5.5)
+    canvas.drawCentredString(PAGE_W / 2, 6,
+        "© 2026 Jachbit. All rights reserved. May not be copied or shared without express written consent of the publisher.  |  linktr.ee/jachbit")
     canvas.setFillColor(NAVY)
     canvas.drawRightString(PAGE_W - MARGIN_R, 8, f"Page {doc.page}")
     canvas.restoreState()
@@ -484,6 +487,12 @@ def build():
         sp(10),
         Paragraph(
             "For support or feedback, contact Jachbit 2026.", SMALL_S),
+        sp(8),
+        Paragraph(
+            "<b>© 2026 Jachbit. All rights reserved.</b> This tool is the intellectual property of Jachbit 2026 "
+            "and may not be copied, distributed, or shared without the express written consent of the publisher. "
+            "Connect: <b>linktr.ee/jachbit</b>",
+            S("copy", fontSize=8, textColor=NAVY, leading=13)),
         sp(8),
         Paragraph(
             "✝  John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17",
