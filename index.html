@@ -423,7 +423,7 @@ footer strong { color: var(--orange); }
       font-size:13px;
     ">
       <span style="color:var(--yellow); font-size:22px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;">Risk Calc:</span>
-      <span id="riskCalcText" style="color:var(--white);"></span>
+      <span id="riskCalcText" style="color:var(--white);font-size:22px;"></span>
       <button class="btn btn-orange" style="padding:4px 12px; font-size:12px;" onclick="applyRiskTarget()">&#10003; Use This Target</button>
     </div>
 
@@ -855,8 +855,8 @@ function updateRiskCalc() {
     ` × <strong style="color:var(--yellow)">${riskPct}% risk</strong>` +
     ` = <strong style="color:var(--white)">$${riskAmt.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong>` +
     ` &nbsp;÷&nbsp; <strong style="color:var(--accent)">$${pv}/pt (${cn})</strong>` +
-    ` = <strong style="color:var(--green); font-size:15px;">${suggestPts.toFixed(1)} pts</strong>` +
-    ` <span style="color:var(--text-dim);font-size:11px;">suggested daily target</span>`;
+    ` = <strong style="color:var(--green); font-size:22px;">${suggestPts.toFixed(1)} pts</strong>` +
+    ` <span style="color:var(--text-dim);font-size:18px;">suggested daily target</span>`;
 }
 
 function applyRiskTarget() {
