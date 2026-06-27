@@ -317,7 +317,10 @@ footer strong { color: var(--orange); }
 
   <div class="header-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
     <div><strong>Jachbit 2026</strong></div>
-    <div id="todayDate"></div>
+    <div id="header-clock" style="font-size:22px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1;">00:00:00</div>
+    <div style="font-size:11px;color:var(--text-dim);letter-spacing:0.5px;text-align:right;">
+      <span id="header-date"></span> &nbsp;|&nbsp; <span style="color:var(--orange);font-weight:700;">ET</span>
+    </div>
     <a href="https://raw.githubusercontent.com/jachbit/FFTP/main/FFTP_User_Guide.pdf"
        target="_blank" download="FFTP_User_Guide.pdf"
        style="display:inline-block;margin-top:4px;padding:4px 12px;
@@ -959,6 +962,22 @@ function loadState() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────
+// ── Live ET clock ────────────────────────────────────────────────────────────
+(function() {
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function tick() {
+    const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const ts = `${String(et.getHours()).padStart(2,'0')}:${String(et.getMinutes()).padStart(2,'0')}:${String(et.getSeconds()).padStart(2,'0')}`;
+    const clockEl = document.getElementById('header-clock');
+    const dateEl  = document.getElementById('header-date');
+    if (clockEl) clockEl.textContent = ts;
+    if (dateEl)  dateEl.textContent  = `${days[et.getDay()]}, ${months[et.getMonth()]} ${et.getDate()}, ${et.getFullYear()}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('todayDate').textContent = formatDisplayDate(new Date());
   const loaded = loadState();
