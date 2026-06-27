@@ -1498,10 +1498,11 @@ const PDF_CFG = {
 // ─── PROJECTION PDF ───────────────────────────────────────────────────────
 function exportPDF() {
   const { jsPDF } = window.jspdf;
-  const ins         = INSTRUMENTS[currentInstrument];
-  const startCap    = parseFloat(document.getElementById('startCapital').value);
-  const dailyPts    = document.getElementById('dailyPts').value;
-  const numWeeks    = tableData.length;
+  const ins           = INSTRUMENTS[currentInstrument];
+  const startCap      = parseFloat(document.getElementById('startCapital').value);
+  const dailyPts      = document.getElementById('dailyPts').value;
+  const tradesPerWeek = parseInt(document.getElementById('tradesPerWeek').value) || 5;
+  const numWeeks      = tableData.length;
   const finalEquity = tableData[tableData.length - 1].endEquity;
   const totalProfit = finalEquity - startCap;
   const totalReturn = (totalProfit / startCap) * 100;
@@ -1525,6 +1526,7 @@ function exportPDF() {
     { label: 'Total Return',    val: fmtPct(totalReturn) },
     { label: 'Max Contracts',   val: `${maxContracts} ${activeContractName()}` },
     { label: 'Daily Pts Target', val: `${dailyPts} pts` },
+    { label: 'Trades / Week',   val: `${tradesPerWeek}x  (${tradesPerWeek * parseInt(numWeeks)} trade days)` },
     { label: 'Point Value',     val: `$${activePointValue()}/pt` },
   ]);
 

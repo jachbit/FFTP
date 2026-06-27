@@ -296,6 +296,8 @@ def build():
         bullet("Daily Points Target: how many points you aim to capture per trading day"),
         bullet("Plan Start Date: the Monday your plan begins — weekly dates auto-fill"),
         bullet("Starting Contracts: how many contracts to begin with (default 1). Each upgrade adds this same number."),
+        bullet("Trades / Week: how many trading days per week (1–5, default 5). Use 3x if your model only appears Mon/Wed/Fri, or 2x for a light schedule. "
+               "This scales weekly profit and auto-calculates Annual Targets in the Tables tab accordingly."),
         bullet("Weeks to Project: default 52 (1 year)"),
         sp(8),
         Paragraph("<b>Risk Calculator strip:</b>", BODY_S), sp(4),
