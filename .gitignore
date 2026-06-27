@@ -1,0 +1,6 @@
+# Backups
+index_*.html
+
+# OS
+.DS_Store
+Thumbs.db

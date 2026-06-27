@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F.O.C.U.S. Futures Trade Projections</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --navy: #002b5c;
+  --navy-light: #003875;
+  --orange: #e65c00;
+  --grey: #444444;
+  --white: #ffffff;
+  --bg: #0d1117;
+  --card: #0f1b2d;
+  --border: #1e3a5f;
+  --accent: #3b82f6;
+  --green: #22c55e;
+  --text-dim: #8fa8c8;
+  --yellow: #fbbf24;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--white); font-family: Arial, sans-serif; font-size: 13px; }
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, var(--navy) 0%, #001a3a 100%);
+  border-bottom: 3px solid var(--orange);
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-left h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; color: var(--white); }
+.header-left p  { font-size: 13px; color: var(--yellow); margin-top: 4px; font-weight: 600; }
+.header-right   { font-size: 11px; color: var(--text-dim); text-align: right; }
+.header-right strong { color: var(--orange); }
+
+/* ── TABS ── */
+.tabs-bar {
+  background: #071020;
+  border-bottom: 2px solid var(--border);
+  display: flex; gap: 0; padding: 0 24px;
+}
+.tab-btn {
+  padding: 11px 28px; border: none; background: transparent;
+  color: var(--text-dim); font-size: 14px; font-weight: 700;
+  cursor: pointer; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; transition: all 0.2s; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+.tab-btn:not(.active):hover { color: var(--white); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CONTROLS ── */
+.controls-wrap {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+}
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px; align-items: end;
+}
+.ctrl-group label {
+  display: block; font-size: 13px; font-weight: 700;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.ctrl-group input, .ctrl-group select {
+  width: 100%; padding: 9px 10px;
+  background: #0a1628; border: 1px solid var(--border);
+  color: var(--white); border-radius: 5px; font-size: 15px;
+  outline: none; transition: border 0.2s;
+}
+.ctrl-group input:focus, .ctrl-group select:focus { border-color: var(--orange); }
+.ctrl-group input[type="date"] { color-scheme: dark; cursor: pointer; }
+.ctrl-group input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) sepia(1) saturate(3) hue-rotate(0deg);
+  cursor: pointer; width: 18px; height: 18px;
+}
+
+.instrument-toggle { display: flex; border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+.instrument-toggle button {
+  flex: 1; padding: 8px 10px; border: none; cursor: pointer;
+  background: #0a1628; color: var(--text-dim); font-size: 13px; font-weight: 700;
+  transition: all 0.2s;
+}
+.instrument-toggle button.active { background: var(--orange); color: var(--white); }
+.instrument-toggle button:not(.active):hover { background: var(--border); color: var(--white); }
+.pt-value-badge {
+  display: inline-block; padding: 3px 8px;
+  background: var(--navy); border: 1px solid var(--orange);
+  border-radius: 4px; color: var(--orange); font-size: 12px; font-weight: 700; margin-top: 5px;
+}
+
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.btn {
+  padding: 8px 16px; border: none; border-radius: 5px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.btn-orange { background: var(--orange); color: var(--white); }
+.btn-orange:hover { background: #ff6d1a; }
+.btn-navy { background: var(--navy); color: var(--white); border: 1px solid var(--border); }
+.btn-navy:hover { background: var(--navy-light); border-color: var(--orange); }
+.btn-green { background: #166534; color: var(--white); border: 1px solid #22c55e; }
+.btn-green:hover { background: #15803d; }
+.btn-accent { background: #1d4ed8; color: var(--white); }
+.btn-accent:hover { background: #2563eb; }
+.btn-red { background: #7f1d1d; color: var(--white); border: 1px solid #ef4444; }
+.btn-red:hover { background: #991b1b; }
+.btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 4px; }
+#csvImportInput, #logImportInput { display: none; }
+
+/* ── SUMMARY CARDS ── */
+.summary-wrap { padding: 16px 24px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+}
+.card.highlight { border-color: var(--orange); }
+.card-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.card-value { font-size: clamp(12px, 1.6vw, 22px); font-weight: 700; color: var(--white); margin-top: 4px; word-break: break-word; line-height: 1.2; }
+.card-value.orange { color: var(--orange); }
+.card-value.green  { color: var(--green); }
+.card-value.yellow { color: var(--yellow); }
+.card-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* ── CHART ── */
+.chart-wrap {
+  margin: 0 24px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px;
+}
+.chart-title { font-size: 12px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.chart-title span { color: var(--orange); }
+#equityChart { max-height: 210px; }
+
+/* ── PROJECTION TABLE ── */
+.table-wrap {
+  margin: 0 24px 24px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.table-header {
+  background: var(--navy); padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-header h3 { font-size: 12px; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 0.5px; }
+.table-scroll { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: #001a3a; color: var(--text-dim);
+  padding: 8px 10px; text-align: right; font-size: 11px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  position: sticky; top: 0; z-index: 2; white-space: nowrap;
+  border-bottom: 2px solid var(--orange);
+}
+thead th:first-child, thead th:nth-child(2), thead th:nth-child(3) { text-align: left; }
+tbody tr { border-bottom: 1px solid #0d1e35; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr.month-end { border-bottom: 2px solid var(--border); }
+td { padding: 6px 10px; text-align: right; color: var(--white); white-space: nowrap; }
+td:first-child, td:nth-child(2), td:nth-child(3) { text-align: left; }
+td.month-cell  { color: var(--orange); font-weight: 700; font-size: 12px; }
+td.week-cell   { color: var(--text-dim); }
+td.date-cell   { color: #7dd3fc; font-size: 12px; cursor: pointer; }
+td.date-cell:hover { text-decoration: underline; color: var(--yellow); }
+td.equity-cell { color: var(--green); font-weight: 700; }
+td.contracts-cell { color: var(--orange); font-weight: 700; }
+td.profit-cell { color: #fbbf24; }
+td.pct-cell    { color: var(--text-dim); font-size: 12px; }
+td.pct-mo-cell { color: var(--accent); font-weight: 700; }
+td.empty-cell  { color: #1e3a5f; }
+tfoot td {
+  background: #001a3a; padding: 8px 10px;
+  font-weight: 700; border-top: 2px solid var(--orange);
+}
+tfoot td.total-label { color: var(--orange); text-align: left; }
+tfoot td.total-val   { color: var(--green); }
+
+/* contract upgrade rows */
+tr.contract-up td { background: #211a00; }
+tr.contract-up td.contracts-cell { color: #fef9c3; font-weight: 700; }
+
+/* inline date editor */
+.date-input-cell {
+  background: #001428; border: 1px solid var(--orange);
+  color: var(--white); border-radius: 4px; padding: 2px 6px;
+  font-size: 12px; color-scheme: dark; width: 130px;
+}
+
+/* ── TRADING LOG TAB ── */
+.log-wrap { padding: 20px 24px; }
+.log-top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+}
+.log-top-bar h2 { font-size: 16px; font-weight: 700; color: var(--white); }
+.log-top-bar h2 span { color: var(--orange); }
+
+/* log summary strip */
+.log-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px; margin-bottom: 18px;
+}
+.log-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; padding: 12px 14px;
+}
+.log-card-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
+.log-card-val { font-size: 18px; font-weight: 700; margin-top: 3px; }
+
+/* log table */
+.log-table-wrap {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+#logTable { width: 100%; border-collapse: collapse; font-size: 14px; }
+#logTable thead th {
+  background: var(--navy); color: var(--white);
+  padding: 10px 10px; text-align: center; font-size: 12px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  position: sticky; top: 0; z-index: 2; white-space: nowrap;
+  border-bottom: 2px solid var(--orange);
+}
+#logTable tbody tr { border-bottom: 1px solid #0d1e35; }
+#logTable tbody tr:hover { background: rgba(255,255,255,0.03); }
+#logTable td {
+  padding: 6px 6px; text-align: center;
+  color: var(--white); vertical-align: middle; font-size: 14px;
+}
+#logTable input, #logTable select, #logTable textarea {
+  background: #0a1628; border: 1px solid var(--border);
+  color: var(--white); border-radius: 4px; padding: 5px 8px;
+  font-size: 14px; width: 100%; outline: none;
+  transition: border 0.15s;
+}
+#logTable input:focus, #logTable select:focus { border-color: var(--orange); }
+#logTable input[type="date"] { color-scheme: dark; cursor: pointer; }
+#logTable input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) sepia(1) saturate(3) hue-rotate(0deg); cursor: pointer;
+}
+#logTable input[type="number"] { text-align: right; width: 80px; }
+.log-pnl-pos { color: var(--green); font-weight: 700; }
+.log-pnl-neg { color: #ef4444; font-weight: 700; }
+.log-vs-plan-pos { color: var(--green); font-size: 11px; }
+.log-vs-plan-neg { color: #ef4444; font-size: 11px; }
+.log-vs-plan-neu { color: var(--text-dim); font-size: 11px; }
+#logTable tfoot td {
+  background: #001a3a; padding: 8px 10px;
+  font-weight: 700; border-top: 2px solid var(--orange);
+  font-size: 13px;
+}
+.delete-row-btn {
+  background: #7f1d1d; border: none; color: var(--white);
+  border-radius: 3px; padding: 3px 7px; cursor: pointer; font-size: 11px;
+}
+.delete-row-btn:hover { background: #991b1b; }
+.no-trade-row td { opacity: 0.5; background: #080f1a; }
+.no-trade-chk { width: auto !important; cursor: pointer; }
+
+/* Capital doubling milestone row */
+.milestone-row td {
+  background: #1a2d00 !important;
+  border-top: 2px solid #22c55e !important;
+  border-bottom: 2px solid #22c55e !important;
+  padding: 8px 6px !important;
+  font-weight: 700;
+}
+.milestone-cell {
+  color: #22c55e !important; font-size: 13px !important;
+  text-align: left !important; letter-spacing: 0.3px;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; padding: 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim); font-size: 11px;
+}
+footer strong { color: var(--orange); }
+
+@media (max-width: 768px) {
+  header { flex-direction: column; gap: 8px; }
+  .controls-grid { grid-template-columns: 1fr 1fr; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <h1>F.O.C.U.S. &mdash; Futures Trade Projections</h1>
+    <p>Capital Doubling &amp; Contract Scaling Strategy &nbsp;&bull;&nbsp; 52-Week Roadmap</p>
+  </div>
+  <div class="header-right">
+    <div><strong>Jachbit 2026</strong></div>
+    <div id="todayDate" style="margin-top:3px;"></div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('projection')">&#128200; Projection</button>
+  <button class="tab-btn" onclick="switchTab('log')">&#128221; Trading Log</button>
+  <button class="tab-btn" onclick="switchTab('targets')">&#127919; Target Tables</button>
+</div>
+
+<!-- ═══════════════ TAB 1: PROJECTION ═══════════════ -->
+<div class="tab-panel active" id="tab-projection">
+
+  <!-- CONTROLS -->
+  <div class="controls-wrap">
+    <div class="controls-grid">
+
+      <div class="ctrl-group">
+        <label>Instrument</label>
+        <div class="instrument-toggle">
+          <button id="btnMNQ" class="active" onclick="setInstrument('MNQ')">MNQ / NQ</button>
+          <button id="btnMES" onclick="setInstrument('MES')">MES / ES</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Micro Contract</label>
+        <div id="microLabel" style="padding:8px 0;font-weight:700;color:var(--white);">
+          MNQ &nbsp;<span class="pt-value-badge">$2.00 / pt</span>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Mini Contract</label>
+        <div id="miniLabel" style="padding:8px 0;font-weight:700;color:var(--white);">
+          NQ &nbsp;<span class="pt-value-badge">$20.00 / pt</span>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Starting Capital ($)</label>
+        <input type="number" id="startCapital" value="1500" min="100" step="100" oninput="recalculate();updateRiskCalc();syncLogStartCap()">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Risk % per Day</label>
+        <input type="number" id="riskPct" value="10" min="0.1" max="100" step="0.5" oninput="updateRiskCalc()">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Daily Points Target</label>
+        <input type="number" id="dailyPts" value="16" min="1" step="0.5" onchange="recalculate()">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Contract Size</label>
+        <div class="instrument-toggle">
+          <button id="btnMicro" class="active" onclick="setContractSize('micro')">Micro</button>
+          <button id="btnMini"  onclick="setContractSize('mini')">Mini</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Plan Start Date</label>
+        <input type="date" id="startDate" onchange="recalculate()">
+      </div>
+
+      <div class="ctrl-group">
+        <label>Weeks to Project</label>
+        <input type="number" id="numWeeks" value="52" min="4" max="104" step="4" onchange="recalculate()">
+      </div>
+
+    </div>
+    <!-- Risk Calc Strip -->
+    <div id="riskCalcStrip" style="
+      margin-top:14px; padding:10px 14px;
+      background:#071020; border:1px solid #1e3a5f; border-radius:6px;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      font-size:13px;
+    ">
+      <span style="color:var(--text-dim); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;">Risk Calc:</span>
+      <span id="riskCalcText" style="color:var(--white);"></span>
+      <button class="btn btn-orange" style="padding:4px 12px; font-size:12px;" onclick="applyRiskTarget()">&#10003; Use This Target</button>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-orange" onclick="recalculate()">&#9654; Recalculate</button>
+      <button class="btn btn-navy" onclick="exportCSV()">&#8681; Export CSV</button>
+      <button class="btn btn-green" onclick="document.getElementById('csvImportInput').click()">&#8679; Import CSV</button>
+      <input type="file" id="csvImportInput" accept=".csv" onchange="importCSV(event)">
+      <button class="btn btn-accent" onclick="exportPDF()">&#128196; Export PDF</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-wrap">
+    <div class="summary-grid">
+      <div class="card highlight">
+        <div class="card-label">Starting Capital</div>
+        <div class="card-value orange" id="sumStart">$1,500</div>
+        <div class="card-sub">Initial account size</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Final Equity</div>
+        <div class="card-value green" id="sumFinal">—</div>
+        <div class="card-sub" id="sumWeeksLabel">After 52 weeks</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Profit</div>
+        <div class="card-value green" id="sumProfit">—</div>
+        <div class="card-sub">Net gain on capital</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Return</div>
+        <div class="card-value orange" id="sumReturn">—</div>
+        <div class="card-sub">% gain over period</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Max Contracts</div>
+        <div class="card-value orange" id="sumMaxContracts">—</div>
+        <div class="card-sub" id="sumMaxLabel">Micro at peak</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Equiv. Mini Contracts</div>
+        <div class="card-value" id="sumMiniEquiv">—</div>
+        <div class="card-sub">10 micro = 1 mini</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Avg Weekly Profit</div>
+        <div class="card-value" id="sumAvgWeekly">—</div>
+        <div class="card-sub">Across projection period</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Plan End Date</div>
+        <div class="card-value" id="sumEndDate" style="font-size:15px;">—</div>
+        <div class="card-sub" id="sumStartDateLabel">Start: —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-wrap">
+    <div class="chart-title">Equity Growth Curve &nbsp;<span>| Weekly Projection</span></div>
+    <canvas id="equityChart"></canvas>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>Weekly Projection Table</h3>
+      <span style="font-size:11px;color:var(--text-dim);">&#9650; = Contract upgrade &nbsp;|&nbsp; Click date to edit</span>
+    </div>
+    <div class="table-scroll">
+      <table id="projTable">
+        <thead>
+          <tr>
+            <th>Mo</th>
+            <th>Wk</th>
+            <th>Week Starting</th>
+            <th>Equity (Start)</th>
+            <th>Contracts</th>
+            <th>Pts/Day</th>
+            <th>Pts/Week</th>
+            <th>Profit/Day</th>
+            <th>Weekly Profit</th>
+            <th>Equity (End)</th>
+            <th>% / Wk</th>
+            <th>% / Mo</th>
+          </tr>
+        </thead>
+        <tbody id="projBody"></tbody>
+        <tfoot id="projFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end tab-projection -->
+
+<!-- ═══════════════ TAB 2: TRADING LOG ═══════════════ -->
+<div class="tab-panel" id="tab-log">
+  <div class="log-wrap">
+
+    <div class="log-top-bar">
+      <div>
+        <h2>Daily <span>Trading Log</span></h2>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
+          <label style="font-size:12px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Starting Capital&nbsp;($):</label>
+          <input type="number" id="logStartCap" value="1500" min="100" step="100"
+            style="background:#0a1628;border:1px solid var(--border);color:var(--white);border-radius:5px;padding:6px 10px;font-size:15px;width:130px;outline:none;"
+            oninput="renderLogTable()"
+            title="Starting capital for milestone doubling calculations">
+          <span style="font-size:11px;color:var(--text-dim);">Used for doubling milestone alerts</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-orange" onclick="addLogRow()">&#43; Add Trade Day</button>
+        <button class="btn btn-navy" onclick="exportLogCSV()">&#8681; Export Log CSV</button>
+        <button class="btn btn-green" onclick="document.getElementById('logImportInput').click()">&#8679; Import Log CSV</button>
+        <input type="file" id="logImportInput" accept=".csv" onchange="importLogCSV(event)">
+        <button class="btn btn-accent" onclick="exportLogPDF()">&#128196; Log PDF</button>
+      </div>
+    </div>
+
+    <!-- Log summary strip -->
+    <div class="log-summary">
+      <div class="log-card">
+        <div class="log-card-label">Days Logged</div>
+        <div class="log-card-val" id="logDays" style="color:var(--white);">0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Days Traded</div>
+        <div class="log-card-val" id="logDaysTraded" style="color:var(--accent);">0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Total Actual Pts</div>
+        <div class="log-card-val" id="logTotalPts" style="color:var(--yellow);">0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Target Pts</div>
+        <div class="log-card-val" id="logTargetPts" style="color:var(--text-dim);">0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Pts vs Plan</div>
+        <div class="log-card-val" id="logVsPlan">—</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Gross P&L</div>
+        <div class="log-card-val" id="logGrossPnl" style="color:var(--green);">$0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Net P&L (after fees)</div>
+        <div class="log-card-val" id="logNetPnl" style="color:var(--green);">$0</div>
+      </div>
+      <div class="log-card">
+        <div class="log-card-label">Avg Pts/Day</div>
+        <div class="log-card-val" id="logAvgPts" style="color:var(--yellow);">0</div>
+      </div>
+    </div>
+
+    <!-- Log table -->
+    <div class="log-table-wrap">
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th style="width:30px;">#</th>
+            <th style="width:120px;">Date</th>
+            <th style="width:55px;">No Trade</th>
+            <th style="width:90px;">Instrument</th>
+            <th style="width:75px;">Target Pts</th>
+            <th style="width:85px;">Actual Pts</th>
+            <th style="width:70px;">Contracts</th>
+            <th style="width:95px;">Gross P&L</th>
+            <th style="width:80px;">Fees ($)</th>
+            <th style="width:95px;">Net P&L</th>
+            <th style="width:80px;">vs Plan</th>
+            <th>Notes</th>
+            <th style="width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+        <tfoot id="logFoot">
+          <tr>
+            <td colspan="4" style="text-align:left;color:var(--orange);">TOTALS</td>
+            <td id="ftTargetPts" style="color:var(--text-dim);">—</td>
+            <td id="ftActualPts" style="color:var(--yellow);">—</td>
+            <td>—</td>
+            <td id="ftGross" style="color:var(--green);">—</td>
+            <td id="ftFees" style="color:#ef4444;">—</td>
+            <td id="ftNet" style="color:var(--green);">—</td>
+            <td id="ftVsPlan">—</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+</div><!-- end tab-log -->
+
+<!-- ═══════════════ TAB 3: TARGET TABLES ═══════════════ -->
+<div class="tab-panel" id="tab-targets">
+  <div class="log-wrap">
+
+    <!-- ── INCOME GOALS ── -->
+    <div class="log-top-bar">
+      <h2>Income <span>Goals</span></h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-orange" onclick="addGoalRow()">&#43; Add Row</button>
+        <button class="btn btn-navy" onclick="exportGoalsCSV()">&#8681; Export CSV</button>
+        <button class="btn btn-accent" onclick="exportGoalsPDF()">&#128196; PDF</button>
+      </div>
+    </div>
+
+    <div class="log-table-wrap" style="margin-bottom:28px;">
+      <table id="goalsTable" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);width:40px;">#</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Year</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Daily Target ($)</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Annual Target ($)</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Age</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Notes</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;border-bottom:2px solid var(--orange);width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="goalsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ── INSTRUMENT VALUES ── -->
+    <div class="log-top-bar">
+      <h2>Instrument <span>Values</span></h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-orange" onclick="addInstrumentRow()">&#43; Add Row</button>
+        <button class="btn btn-navy" onclick="exportInstrumentsCSV()">&#8681; Export CSV</button>
+        <button class="btn btn-accent" onclick="exportInstrumentsPDF()">&#128196; PDF</button>
+      </div>
+    </div>
+
+    <div class="log-table-wrap">
+      <table id="instrumentsTable" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);width:40px;">#</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Instrument</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Tick ($)</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Point ($)</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);"># Ticks / Point</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;border-bottom:2px solid var(--orange);">Notes</th>
+            <th style="background:var(--navy);color:var(--white);padding:10px 14px;border-bottom:2px solid var(--orange);width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="instrumentsBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- end tab-targets -->
+
+<footer>
+  <strong>F.O.C.U.S.STOCKS</strong> &nbsp;&bull;&nbsp; Futures Trade Projections &nbsp;&bull;&nbsp; Jachbit 2026 &nbsp;&bull;&nbsp;
+  Strategy: Capital Doubling Contract Scale &nbsp;&bull;&nbsp; 10 Micros = 1 Mini (MNQ/NQ) &nbsp;|&nbsp; 10 Micros = 1 Mini (MES/ES)
+</footer>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────
+const INSTRUMENTS = {
+  MNQ: { micro: 'MNQ', mini: 'NQ',  microPV: 2,  miniPV: 20,  microPerMini: 10 },
+  MES: { micro: 'MES', mini: 'ES',  microPV: 5,  miniPV: 50,  microPerMini: 10 }
+};
+let currentInstrument = 'MNQ';
+let currentSize = 'micro'; // 'micro' or 'mini'
+let chartInstance = null;
+let tableData = [];
+let dateOverrides = {};  // week# → custom date string
+let logRows = [];
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'focus_futures_v1';
+
+function saveState() {
+  const state = {
+    instrument: currentInstrument,
+    size: currentSize,
+    startCapital: document.getElementById('startCapital').value,
+    dailyPts:     document.getElementById('dailyPts').value,
+    startDate:    document.getElementById('startDate').value,
+    numWeeks:     document.getElementById('numWeeks').value,
+    dateOverrides,
+    logRows,
+    logStartCap: document.getElementById('logStartCap') ? document.getElementById('logStartCap').value : 1500,
+    goalsData,
+    instrumentsData
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    currentInstrument = state.instrument || 'MNQ';
+    currentSize = state.size || 'micro';
+    document.getElementById('btnMicro').classList.toggle('active', currentSize === 'micro');
+    document.getElementById('btnMini').classList.toggle('active',  currentSize === 'mini');
+    document.getElementById('btnMNQ').classList.toggle('active', currentInstrument === 'MNQ');
+    document.getElementById('btnMES').classList.toggle('active', currentInstrument === 'MES');
+    if (state.startCapital) document.getElementById('startCapital').value = state.startCapital;
+    if (state.dailyPts)     document.getElementById('dailyPts').value     = state.dailyPts;
+    if (state.startDate)    document.getElementById('startDate').value    = state.startDate;
+    if (state.numWeeks)     document.getElementById('numWeeks').value     = state.numWeeks;
+    if (state.dateOverrides)   dateOverrides   = state.dateOverrides;
+    if (state.logRows)         logRows         = state.logRows;
+    if (state.goalsData)       goalsData       = state.goalsData;
+    if (state.instrumentsData) instrumentsData = state.instrumentsData;
+    if (state.logStartCap) {
+      const el = document.getElementById('logStartCap');
+      if (el) el.value = state.logStartCap;
+    }
+    return true;
+  } catch(e) { return false; }
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('todayDate').textContent = formatDisplayDate(new Date());
+  const loaded = loadState();
+  if (!loaded) {
+    document.getElementById('startDate').value = toInputDate(new Date());
+  }
+  updateInstrumentLabels();
+  updateRiskCalc();
+  recalculate();
+  if (logRows.length > 0) renderLogTable();
+  renderGoalsTable();
+  renderInstrumentsTable();
+  showStorageBadge();
+});
+
+// ─── TABS ────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─── INSTRUMENT ──────────────────────────────────────────────────────────
+function activePointValue() {
+  const ins = INSTRUMENTS[currentInstrument];
+  return currentSize === 'micro' ? ins.microPV : ins.miniPV;
+}
+function activeContractName() {
+  const ins = INSTRUMENTS[currentInstrument];
+  return currentSize === 'micro' ? ins.micro : ins.mini;
+}
+
+function setInstrument(ins) {
+  currentInstrument = ins;
+  document.getElementById('btnMNQ').classList.toggle('active', ins === 'MNQ');
+  document.getElementById('btnMES').classList.toggle('active', ins === 'MES');
+  updateInstrumentLabels();
+  updateRiskCalc();
+  recalculate();
+  refreshLogSummary();
+}
+
+function setContractSize(size) {
+  currentSize = size;
+  document.getElementById('btnMicro').classList.toggle('active', size === 'micro');
+  document.getElementById('btnMini').classList.toggle('active',  size === 'mini');
+  updateInstrumentLabels();
+  updateRiskCalc();
+  recalculate();
+}
+
+function updateInstrumentLabels() {
+  const ins = INSTRUMENTS[currentInstrument];
+  const pv  = activePointValue();
+  const cn  = activeContractName();
+  document.getElementById('microLabel').innerHTML =
+    `${ins.micro} &nbsp;<span class="pt-value-badge" style="${currentSize==='micro'?'border-color:#22c55e;color:#22c55e;':''}">$${ins.microPV.toFixed(2)} / pt</span>`;
+  document.getElementById('miniLabel').innerHTML =
+    `${ins.mini} &nbsp;<span class="pt-value-badge" style="${currentSize==='mini'?'border-color:#22c55e;color:#22c55e;':''}">$${ins.miniPV.toFixed(2)} / pt</span>`;
+}
+
+function updateRiskCalc() {
+  const capital  = parseFloat(document.getElementById('startCapital').value) || 1500;
+  const riskPct  = parseFloat(document.getElementById('riskPct').value) || 10;
+  const pv       = activePointValue();
+  const cn       = activeContractName();
+  const riskAmt  = capital * (riskPct / 100);
+  const suggestPts = riskAmt / pv;
+
+  document.getElementById('riskCalcText').innerHTML =
+    `<strong style="color:var(--orange)">$${capital.toLocaleString()}</strong>` +
+    ` × <strong style="color:var(--yellow)">${riskPct}% risk</strong>` +
+    ` = <strong style="color:var(--white)">$${riskAmt.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong>` +
+    ` &nbsp;÷&nbsp; <strong style="color:var(--accent)">$${pv}/pt (${cn})</strong>` +
+    ` = <strong style="color:var(--green); font-size:15px;">${suggestPts.toFixed(1)} pts</strong>` +
+    ` <span style="color:var(--text-dim);font-size:11px;">suggested daily target</span>`;
+}
+
+function applyRiskTarget() {
+  const capital   = parseFloat(document.getElementById('startCapital').value) || 1500;
+  const riskPct   = parseFloat(document.getElementById('riskPct').value) || 10;
+  const pv        = activePointValue();
+  const suggestPts = (capital * (riskPct / 100)) / pv;
+  document.getElementById('dailyPts').value = Math.round(suggestPts * 2) / 2; // round to nearest 0.5
+  recalculate();
+}
+
+// ─── PROJECTION CALCULATE ────────────────────────────────────────────────
+function recalculate() {
+  const ins      = INSTRUMENTS[currentInstrument];
+  const pv       = activePointValue();
+  const cn       = activeContractName();
+  const startCap = parseFloat(document.getElementById('startCapital').value) || 1500;
+  const dailyPts = parseFloat(document.getElementById('dailyPts').value) || 16;
+  const weekPts  = dailyPts * 5;
+  const numWeeks = parseInt(document.getElementById('numWeeks').value) || 52;
+  const startDateVal = document.getElementById('startDate').value;
+  const startDate = startDateVal ? new Date(startDateVal + 'T00:00:00') : new Date();
+
+  tableData = [];
+  let equity = startCap;
+  let totalProfit = 0;
+  let monthlyPct = 0;
+  let prevContracts = 0;
+  // Conservative scaling: +1 contract only when equity crosses the NEXT
+  // $startCap threshold — never skips a level even in a big profit week.
+  let contractLevel = 1;
+  let nextUpgrade = startCap * 2; // first upgrade when equity hits 2× startCap
+
+  for (let w = 1; w <= numWeeks; w++) {
+    const month = Math.ceil(w / 4);
+    const weekOfMonth = ((w - 1) % 4) + 1;
+    const isMonthEnd = (w % 4 === 0) || (w === numWeeks);
+    // Advance exactly one level if equity reached the next threshold
+    if (equity >= nextUpgrade) {
+      contractLevel++;
+      nextUpgrade += startCap;
+    }
+    const contracts = contractLevel;
+    const contractUpgrade = contracts > prevContracts && w > 1;
+
+    // Date: use override if user edited, else auto-calculate
+    let weekDate;
+    if (dateOverrides[w]) {
+      weekDate = new Date(dateOverrides[w] + 'T00:00:00');
+    } else {
+      weekDate = new Date(startDate);
+      weekDate.setDate(startDate.getDate() + (w - 1) * 7);
+    }
+
+    const profitDay  = dailyPts * pv * contracts;
+    const weekProfit = weekPts  * pv * contracts;
+    const pctWeek    = (weekProfit / equity) * 100;
+    const endEquity  = equity + weekProfit;
+
+    monthlyPct += pctWeek;
+    totalProfit += weekProfit;
+
+    tableData.push({
+      week: w, month, weekOfMonth, isMonthEnd,
+      date: weekDate, equity, contracts, dailyPts, weekPts,
+      profitDay, weekProfit, endEquity, pctWeek,
+      pctMonth: isMonthEnd ? monthlyPct : null,
+      contractUpgrade
+    });
+
+    if (isMonthEnd) monthlyPct = 0;
+    prevContracts = contracts;
+    equity = endEquity;
+  }
+
+  updateSummary(startCap, equity, totalProfit, numWeeks, startDate, ins);
+  renderChart();
+  renderTable();
+  saveState();
+}
+
+// ─── SUMMARY ─────────────────────────────────────────────────────────────
+function updateSummary(startCap, finalEquity, totalProfit, numWeeks, startDate, ins) {
+  const maxContracts = Math.max(...tableData.map(r => r.contracts));
+  const avgWeekly    = totalProfit / numWeeks;
+  const totalReturn  = (totalProfit / startCap) * 100;
+  const endDate = new Date(tableData[tableData.length - 1].date);
+
+  document.getElementById('sumStart').textContent          = fmt$(startCap);
+  document.getElementById('sumFinal').textContent          = fmt$(finalEquity);
+  document.getElementById('sumProfit').textContent         = fmt$(totalProfit);
+  document.getElementById('sumReturn').textContent         = fmtPct(totalReturn);
+  const activeCN = activeContractName();
+  document.getElementById('sumMaxContracts').textContent   = maxContracts;
+  document.getElementById('sumMaxLabel').textContent       = `${activeCN} at peak`;
+  const equivLabel = currentSize === 'micro'
+    ? `${(maxContracts / ins.microPerMini).toFixed(1)} ${ins.mini}`
+    : `${maxContracts} ${ins.mini} (mini)`;
+  document.getElementById('sumMiniEquiv').textContent      = equivLabel;
+  document.getElementById('sumAvgWeekly').textContent      = fmt$(avgWeekly);
+  document.getElementById('sumWeeksLabel').textContent     = `After ${numWeeks} weeks`;
+  document.getElementById('sumEndDate').textContent        = formatDisplayDate(endDate);
+  document.getElementById('sumStartDateLabel').textContent = `Start: ${formatDisplayDate(startDate)}`;
+}
+
+// ─── CHART ───────────────────────────────────────────────────────────────
+function renderChart() {
+  const labels    = tableData.map(r => `Wk ${r.week}`);
+  const equities  = tableData.map(r => r.endEquity);
+  const contracts = tableData.map(r => r.contracts);
+
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById('equityChart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Equity ($)', data: equities,
+          borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.07)',
+          borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true, yAxisID: 'y'
+        },
+        {
+          label: 'Contracts', data: contracts,
+          borderColor: '#e65c00', backgroundColor: 'transparent',
+          borderWidth: 2, pointRadius: 2, borderDash: [4,3], tension: 0.2, yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#8fa8c8', font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#0f1b2d', borderColor: '#1e3a5f', borderWidth: 1,
+          titleColor: '#ffffff', bodyColor: '#8fa8c8',
+          callbacks: {
+            label: ctx => ctx.dataset.yAxisID === 'y'
+              ? ` Equity: ${fmt$(ctx.raw)}`
+              : ` Contracts: ${ctx.raw}`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#8fa8c8', font: { size: 10 }, maxTicksLimit: 13 }, grid: { color: '#0d1e35' } },
+        y: {
+          position: 'left',
+          ticks: { color: '#22c55e', font: { size: 10 }, callback: v => '$'+(v>=1000?(v/1000).toFixed(0)+'K':v) },
+          grid: { color: '#0d1e35' }
+        },
+        y2: { position: 'right', ticks: { color: '#e65c00', font: { size: 10 } }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+// ─── PROJECTION TABLE ────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('projBody');
+  const tfoot = document.getElementById('projFoot');
+  tbody.innerHTML = '';
+  let totalWeeklyProfit = 0;
+
+  tableData.forEach(r => {
+    totalWeeklyProfit += r.weekProfit;
+    const tr = document.createElement('tr');
+    if (r.contractUpgrade) tr.classList.add('contract-up');
+    if (r.isMonthEnd) tr.classList.add('month-end');
+
+    const moCell = r.weekOfMonth === 1
+      ? `<td class="month-cell">Mo ${r.month}</td>`
+      : `<td class="empty-cell">—</td>`;
+
+    const upArrow = r.contractUpgrade ? '&#9650; ' : '';
+
+    tr.innerHTML = `
+      ${moCell}
+      <td class="week-cell">${r.week}</td>
+      <td class="date-cell" onclick="editDate(${r.week}, this)">${formatDisplayDate(r.date)}</td>
+      <td class="equity-cell">${fmt$(r.equity)}</td>
+      <td class="contracts-cell">${upArrow}${r.contracts}</td>
+      <td>${r.dailyPts}</td>
+      <td>${r.weekPts}</td>
+      <td class="profit-cell">${fmt$(r.profitDay)}</td>
+      <td class="profit-cell">${fmt$(r.weekProfit)}</td>
+      <td class="equity-cell">${fmt$(r.endEquity)}</td>
+      <td class="pct-cell">${fmtPct(r.pctWeek)}</td>
+      <td class="pct-mo-cell">${r.pctMonth !== null ? fmtPct(r.pctMonth) : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const last = tableData[tableData.length - 1];
+  const startCap = parseFloat(document.getElementById('startCapital').value);
+  tfoot.innerHTML = `
+    <tr>
+      <td colspan="3" class="total-label">TOTALS / FINAL</td>
+      <td class="total-label">Start: ${fmt$(startCap)}</td>
+      <td class="total-val">${last.contracts} max</td>
+      <td colspan="2">—</td>
+      <td>—</td>
+      <td class="total-val">${fmt$(totalWeeklyProfit)}</td>
+      <td class="total-val">${fmt$(last.endEquity)}</td>
+      <td colspan="2" class="total-val">${fmtPct((totalWeeklyProfit/startCap)*100)}</td>
+    </tr>
+  `;
+}
+
+// ─── EDITABLE DATE IN PROJECTION ─────────────────────────────────────────
+function editDate(weekNum, cell) {
+  const row = tableData.find(r => r.week === weekNum);
+  if (!row) return;
+  const currentVal = toInputDate(row.date);
+  const input = document.createElement('input');
+  input.type = 'date';
+  input.className = 'date-input-cell';
+  input.value = currentVal;
+  cell.innerHTML = '';
+  cell.appendChild(input);
+  input.focus();
+  input.showPicker && input.showPicker();
+
+  function commit() {
+    if (input.value) {
+      dateOverrides[weekNum] = input.value;
+      recalculate();
+    } else {
+      cell.textContent = formatDisplayDate(row.date);
+    }
+  }
+  input.addEventListener('change', commit);
+  input.addEventListener('blur', () => setTimeout(() => { if (document.contains(input)) cell.textContent = formatDisplayDate(row.date); }, 200));
+}
+
+// ─── INSTRUMENT POINT VALUE MAP ──────────────────────────────────────────
+function getInstrumentPV(instrument) {
+  const pvMap = { MNQ: 2, NQ: 20, MES: 5, ES: 50 };
+  return pvMap[instrument] || 2;
+}
+
+// ─── TRADING LOG ─────────────────────────────────────────────────────────
+function addLogRow(data = {}) {
+  const ins = INSTRUMENTS[currentInstrument];
+  const dailyPts = parseFloat(document.getElementById('dailyPts').value) || 16;
+  const rowNum = logRows.length + 1;
+
+  const row = {
+    id: Date.now() + Math.random(),
+    date: data.date || toInputDate(new Date()),
+    noTrade: data.noTrade || false,
+    instrument: data.instrument || ins.micro,
+    targetPts: data.targetPts !== undefined ? data.targetPts : dailyPts,
+    actualPts: data.actualPts !== undefined ? data.actualPts : '',
+    contracts: data.contracts !== undefined ? data.contracts : 1,
+    fees: data.fees !== undefined ? data.fees : 0,
+    notes: data.notes || ''
+  };
+  logRows.push(row);
+  renderLogTable();
+  saveState();
+  showStorageBadge();
+}
+
+function removeLogRow(id) {
+  logRows = logRows.filter(r => r.id !== id);
+  renderLogTable();
+  saveState();
+}
+
+function getLogRowValues(id) {
+  const row = logRows.find(r => r.id === id);
+  if (!row) return null;
+  const actualPts = parseFloat(row.actualPts) || 0;
+  const contracts = parseInt(row.contracts) || 1;
+  const fees      = parseFloat(row.fees) || 0;
+  const pv        = getInstrumentPV(row.instrument);
+  const gross     = row.noTrade ? 0 : actualPts * pv * contracts;
+  const net       = gross - fees;
+  const vsPlan    = row.noTrade ? null : actualPts - parseFloat(row.targetPts || 0);
+  return { actualPts, contracts, fees, gross, net, vsPlan, pv };
+}
+
+function renderLogTable() {
+  const tbody    = document.getElementById('logBody');
+  tbody.innerHTML = '';
+
+  const startCap       = parseFloat(document.getElementById('logStartCap').value) || parseFloat(document.getElementById('startCapital').value) || 1500;
+  let runningEquity    = startCap;
+  let nextMilestone    = startCap * 2;
+  let milestoneCount   = 1; // how many times doubled
+
+  logRows.forEach((row, idx) => {
+    const vals = getLogRowValues(row.id);
+
+    // Track equity change for milestone check after row is rendered
+    let milestoneCrossed = false;
+    if (!row.noTrade) {
+      const prevEquity = runningEquity;
+      runningEquity += vals.net;
+      if (prevEquity < nextMilestone && runningEquity >= nextMilestone) {
+        milestoneCrossed = true;
+      }
+    }
+
+    const tr = document.createElement('tr');
+    if (row.noTrade) tr.classList.add('no-trade-row');
+
+    const grossColor = vals.gross >= 0 ? 'var(--green)' : '#ef4444';
+    const netColor   = vals.net   >= 0 ? 'var(--green)' : '#ef4444';
+    let vsPlanHtml   = '—';
+    if (!row.noTrade && vals.vsPlan !== null) {
+      const cls  = vals.vsPlan > 0 ? 'log-vs-plan-pos' : vals.vsPlan < 0 ? 'log-vs-plan-neg' : 'log-vs-plan-neu';
+      const sign = vals.vsPlan > 0 ? '+' : '';
+      vsPlanHtml = `<span class="${cls}">${sign}${vals.vsPlan.toFixed(1)} pts</span>`;
+    }
+
+    const pvLabel = `$${vals.pv}/pt`;
+
+    tr.innerHTML = `
+      <td style="color:var(--text-dim);font-size:12px;">${idx+1}</td>
+      <td><input type="date" value="${row.date}" onchange="updateLogField(${row.id},'date',this.value)"></td>
+      <td><input type="checkbox" class="no-trade-chk" ${row.noTrade?'checked':''} onchange="updateLogField(${row.id},'noTrade',this.checked);renderLogTable()"></td>
+      <td>
+        <select onchange="updateLogField(${row.id},'instrument',this.value);renderLogTable()">
+          <option value="MNQ" ${row.instrument==='MNQ'?'selected':''}>MNQ</option>
+          <option value="NQ"  ${row.instrument==='NQ' ?'selected':''}>NQ</option>
+          <option value="MES" ${row.instrument==='MES'?'selected':''}>MES</option>
+          <option value="ES"  ${row.instrument==='ES' ?'selected':''}>ES</option>
+        </select>
+      </td>
+      <td><input type="number" value="${row.targetPts}" step="0.5" onchange="updateLogField(${row.id},'targetPts',this.value)" ${row.noTrade?'disabled':''}></td>
+      <td><input type="number" value="${row.actualPts}" step="0.5" onchange="updateLogField(${row.id},'actualPts',this.value);renderLogTable()" ${row.noTrade?'disabled':''}></td>
+      <td><input type="number" value="${row.contracts}" min="1" step="1" onchange="updateLogField(${row.id},'contracts',this.value)" ${row.noTrade?'disabled':''}></td>
+      <td style="color:${grossColor};font-weight:700;">${row.noTrade ? '—' : fmt$(vals.gross)}<br><span style="color:var(--text-dim);font-size:11px;">${pvLabel}</span></td>
+      <td><input type="number" value="${row.fees}" min="0" step="0.01" onchange="updateLogField(${row.id},'fees',this.value)" ${row.noTrade?'disabled':''}></td>
+      <td style="color:${netColor};font-weight:700;">${row.noTrade ? '—' : fmt$(vals.net)}</td>
+      <td>${vsPlanHtml}</td>
+      <td><input type="text" value="${row.notes}" placeholder="Notes..." style="width:160px;" onchange="updateLogField(${row.id},'notes',this.value)"></td>
+      <td><button class="delete-row-btn" onclick="removeLogRow(${row.id})">&#10005;</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    // Insert milestone banner AFTER the row that crossed the milestone
+    if (milestoneCrossed) {
+      const suggestedContracts = milestoneCount + 1;
+      const milestone = document.createElement('tr');
+      milestone.classList.add('milestone-row');
+      milestone.innerHTML = `
+        <td colspan="13" class="milestone-cell">
+          &#127881; MILESTONE: Capital reached $${nextMilestone.toLocaleString('en-US', {minimumFractionDigits:2})}
+          &nbsp;&mdash;&nbsp; You've doubled ${milestoneCount > 1 ? 'again' : 'your capital'}!
+          &nbsp;&#9650;&nbsp; Consider increasing to <strong>${suggestedContracts} contract${suggestedContracts>1?'s':''}</strong>
+          &nbsp;(Running Equity: ${fmt$(runningEquity)})
+        </td>
+      `;
+      tbody.appendChild(milestone);
+      milestoneCount++;
+      nextMilestone = startCap * Math.pow(2, milestoneCount);
+    }
+  });
+
+  refreshLogSummary();
+}
+
+function updateLogField(id, field, value) {
+  const row = logRows.find(r => r.id === id);
+  if (!row) return;
+  row[field] = value;
+  refreshLogSummary();
+  saveState();
+}
+
+function refreshLogSummary() {
+  const ins = INSTRUMENTS[currentInstrument];
+  const tradedRows = logRows.filter(r => !r.noTrade);
+  const daysLogged  = logRows.length;
+  const daysTraded  = tradedRows.length;
+  let totalActualPts = 0, totalTargetPts = 0, totalGross = 0, totalFees = 0, totalNet = 0;
+
+  tradedRows.forEach(row => {
+    const vals = getLogRowValues(row.id);
+    totalActualPts += vals.actualPts;
+    totalTargetPts += parseFloat(row.targetPts) || 0;
+    totalGross     += vals.gross;
+    totalFees      += vals.fees;
+    totalNet       += vals.net;
+  });
+
+  const vsPlan = totalActualPts - totalTargetPts;
+  const avgPts = daysTraded > 0 ? (totalActualPts / daysTraded) : 0;
+
+  document.getElementById('logDays').textContent       = daysLogged;
+  document.getElementById('logDaysTraded').textContent = daysTraded;
+  document.getElementById('logTotalPts').textContent   = totalActualPts.toFixed(1);
+  document.getElementById('logTargetPts').textContent  = totalTargetPts.toFixed(1);
+  document.getElementById('logGrossPnl').textContent   = fmt$(totalGross);
+  document.getElementById('logNetPnl').textContent     = fmt$(totalNet);
+  document.getElementById('logAvgPts').textContent     = avgPts.toFixed(1);
+
+  const vpEl = document.getElementById('logVsPlan');
+  const sign = vsPlan >= 0 ? '+' : '';
+  vpEl.textContent = `${sign}${vsPlan.toFixed(1)}`;
+  vpEl.style.color = vsPlan >= 0 ? 'var(--green)' : '#ef4444';
+
+  document.getElementById('logGrossPnl').style.color = totalGross >= 0 ? 'var(--green)' : '#ef4444';
+  document.getElementById('logNetPnl').style.color   = totalNet   >= 0 ? 'var(--green)' : '#ef4444';
+
+  // Footer totals
+  document.getElementById('ftTargetPts').textContent = totalTargetPts.toFixed(1);
+  document.getElementById('ftActualPts').textContent = totalActualPts.toFixed(1);
+  document.getElementById('ftGross').textContent     = fmt$(totalGross);
+  document.getElementById('ftFees').textContent      = fmt$(totalFees);
+  document.getElementById('ftNet').textContent       = fmt$(totalNet);
+  document.getElementById('ftVsPlan').innerHTML      = `<span style="color:${vsPlan>=0?'var(--green)':'#ef4444'}">${sign}${vsPlan.toFixed(1)}</span>`;
+}
+
+// ─── CSV EXPORT (Projection) ──────────────────────────────────────────────
+function exportCSV() {
+  const ins = INSTRUMENTS[currentInstrument];
+  const startCap = document.getElementById('startCapital').value;
+  const dailyPts = document.getElementById('dailyPts').value;
+  const headers = ['Month','Week','Date','Equity_Start','Contracts','Pts_Per_Day','Pts_Per_Week',
+    'Profit_Per_Day','Weekly_Profit','Equity_End','Pct_Week','Pct_Month',
+    'Instrument','Point_Value','Starting_Capital','Daily_Points'];
+  const rows = tableData.map(r => [
+    r.month, r.week, formatCSVDate(r.date),
+    r.equity.toFixed(2), r.contracts,
+    r.dailyPts, r.weekPts,
+    r.profitDay.toFixed(2), r.weekProfit.toFixed(2), r.endEquity.toFixed(2),
+    r.pctWeek.toFixed(4),
+    r.pctMonth !== null ? r.pctMonth.toFixed(4) : '',
+    ins.micro, ins.microPV, startCap, dailyPts
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  downloadFile(csv, `FOCUS_Projection_${ins.micro}_${formatCSVDate(new Date())}.csv`, 'text/csv');
+}
+
+// ─── CSV IMPORT (Projection) ──────────────────────────────────────────────
+function importCSV(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.trim().split('\n');
+    if (lines.length < 2) return;
+    const headers = lines[0].split(',');
+    const idxMap = {}; headers.forEach((h,i) => { idxMap[h.trim()] = i; });
+    const first = lines[1].split(',');
+    const instrument = first[idxMap['Instrument']] === 'MES' ? 'MES' : 'MNQ';
+    const startCap   = first[idxMap['Starting_Capital']];
+    const dailyPts   = first[idxMap['Daily_Points']];
+    const startDate  = first[idxMap['Date']];
+    if (startCap)  document.getElementById('startCapital').value = startCap;
+    if (dailyPts)  document.getElementById('dailyPts').value = dailyPts;
+    if (startDate) document.getElementById('startDate').value = startDate;
+    document.getElementById('numWeeks').value = lines.length - 1;
+    setInstrument(instrument);
+    recalculate();
+    alert(`Imported ${lines.length - 1} weeks. Settings restored.`);
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ─── LOG CSV EXPORT ───────────────────────────────────────────────────────
+function exportLogCSV() {
+  const ins = INSTRUMENTS[currentInstrument];
+  const headers = ['Row','Date','NoTrade','Instrument','TargetPts','ActualPts','Contracts','GrossPnL','Fees','NetPnL','VsPlan','Notes'];
+  const rows = logRows.map((row, idx) => {
+    const vals = getLogRowValues(row.id);
+    return [
+      idx+1, row.date, row.noTrade?'YES':'NO', row.instrument,
+      row.targetPts, row.noTrade?'':row.actualPts, row.noTrade?'':row.contracts,
+      row.noTrade?'':vals.gross.toFixed(2), row.noTrade?'':vals.fees.toFixed(2),
+      row.noTrade?'':vals.net.toFixed(2),
+      vals.vsPlan !== null ? vals.vsPlan.toFixed(1) : '',
+      `"${row.notes}"`
+    ];
+  });
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  downloadFile(csv, `FOCUS_TradingLog_${formatCSVDate(new Date())}.csv`, 'text/csv');
+}
+
+// ─── LOG CSV IMPORT ───────────────────────────────────────────────────────
+function importLogCSV(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.trim().split('\n');
+    if (lines.length < 2) return;
+    const headers = lines[0].split(',');
+    const idxMap = {}; headers.forEach((h,i) => { idxMap[h.trim()] = i; });
+    logRows = [];
+    lines.slice(1).forEach(line => {
+      const cols = line.split(',');
+      addLogRow({
+        date:       cols[idxMap['Date']] || toInputDate(new Date()),
+        noTrade:    cols[idxMap['NoTrade']] === 'YES',
+        instrument: cols[idxMap['Instrument']] || 'MNQ',
+        targetPts:  parseFloat(cols[idxMap['TargetPts']]) || 16,
+        actualPts:  parseFloat(cols[idxMap['ActualPts']]) || '',
+        contracts:  parseInt(cols[idxMap['Contracts']]) || 1,
+        fees:       parseFloat(cols[idxMap['Fees']]) || 0,
+        notes:      (cols[idxMap['Notes']] || '').replace(/"/g,'')
+      });
+    });
+    saveState();
+    showStorageBadge();
+    alert(`Imported ${lines.length - 1} log rows.`);
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ─── PDF (Projection) ────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// PDF TEMPLATE CONFIG  — Jachbit 2026 Standard
+// All PDFs use this config. Edit here ONCE to change style globally.
+// Rules: white bg everywhere, no dark fills, no yellow highlights,
+//        text colors: black / navy / dark-green / dark-red only.
+// ═══════════════════════════════════════════════════════════════════════════
+const PDF_CFG = {
+  C: {
+    white:    [255, 255, 255],
+    black:    [0,   0,   0  ],
+    navy:     [0,   43,  92 ],
+    orange:   [230, 92,  0  ],
+    green:    [0,   110, 0  ],
+    red:      [160, 0,   0  ],
+    grey:     [80,  80,  80 ],
+    lightGrey:[235, 238, 245],
+    altRow:   [248, 249, 252],
+    rowBorder:[200, 210, 225],
+  },
+
+  // Draw standard page header (white bg, orange top accent, navy title)
+  header(doc, W, title, subtitle) {
+    const c = PDF_CFG.C;
+    // Orange top accent bar only — no dark fill
+    doc.setFillColor(...c.orange);
+    doc.rect(0, 0, W, 1.5, 'F');
+    // Title
+    doc.setTextColor(...c.navy);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text(title, 10, 12);
+    // Subtitle
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...c.grey);
+    doc.text(subtitle, 10, 19);
+    // Right: Jachbit / date
+    doc.setTextColor(...c.navy);
+    doc.setFontSize(8);
+    doc.text(`Jachbit 2026  |  ${formatDisplayDate(new Date())}`, W - 10, 19, { align: 'right' });
+    // Bottom rule under header
+    doc.setDrawColor(...c.navy);
+    doc.setLineWidth(0.4);
+    doc.line(10, 22, W - 10, 22);
+    return 26; // return startY for next element
+  },
+
+  // Draw a clean summary strip (no boxes, plain text pairs)
+  summaryStrip(doc, W, startY, items) {
+    const c = PDF_CFG.C;
+    const colW = (W - 20) / Math.ceil(items.length / 2);
+    items.forEach((item, i) => {
+      const col = i % Math.ceil(items.length / 2);
+      const row = Math.floor(i / Math.ceil(items.length / 2));
+      const x = 10 + col * colW;
+      const y = startY + row * 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...c.grey);
+      doc.text(item.label.toUpperCase() + ':', x, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...c.navy);
+      doc.text(item.val, x + colW * 0.45, y);
+    });
+    return startY + (Math.ceil(items.length / Math.ceil(items.length / 2)) * 11) + 4;
+  },
+
+  // Draw standard page footer (white bg, thin top rule, small grey text)
+  footer(doc, W, H, label, pageNum) {
+    const c = PDF_CFG.C;
+    doc.setDrawColor(...c.navy);
+    doc.setLineWidth(0.3);
+    doc.line(10, H - 9, W - 10, H - 9);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6);
+    doc.setTextColor(...c.grey);
+    doc.text(`F.O.C.U.S.  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
+    doc.setTextColor(...c.navy);
+    doc.text(`Page ${pageNum}`, W - 10, H - 4, { align: 'right' });
+  },
+
+  // Standard table styles (no dark fills, no yellow rows)
+  tableStyles(fontSize = 8) {
+    const c = PDF_CFG.C;
+    return {
+      styles: {
+        fontSize, cellPadding: 2, textColor: c.black,
+        fillColor: c.white, lineColor: c.rowBorder, lineWidth: 0.2
+      },
+      headStyles: {
+        fillColor: c.lightGrey, textColor: c.navy,
+        fontSize, fontStyle: 'bold', halign: 'center',
+        lineColor: c.navy, lineWidth: 0.4
+      },
+      alternateRowStyles: { fillColor: c.altRow }
+    };
+  }
+};
+
+// ─── PROJECTION PDF ───────────────────────────────────────────────────────
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const ins         = INSTRUMENTS[currentInstrument];
+  const startCap    = parseFloat(document.getElementById('startCapital').value);
+  const dailyPts    = document.getElementById('dailyPts').value;
+  const numWeeks    = tableData.length;
+  const finalEquity = tableData[tableData.length - 1].endEquity;
+  const totalProfit = finalEquity - startCap;
+  const totalReturn = (totalProfit / startCap) * 100;
+  const maxContracts = Math.max(...tableData.map(r => r.contracts));
+  const c = PDF_CFG.C;
+
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  let y = PDF_CFG.header(doc, W,
+    'F.O.C.U.S. — Futures Trade Projections',
+    `Capital Doubling & Contract Scaling Strategy  |  ${numWeeks}-Week Roadmap`
+  );
+
+  y = PDF_CFG.summaryStrip(doc, W, y, [
+    { label: 'Instrument',      val: `${activeContractName()} / ${ins.mini}` },
+    { label: 'Starting Capital', val: fmt$(startCap) },
+    { label: 'Final Equity',    val: fmt$(finalEquity) },
+    { label: 'Total Profit',    val: fmt$(totalProfit) },
+    { label: 'Total Return',    val: fmtPct(totalReturn) },
+    { label: 'Max Contracts',   val: `${maxContracts} ${activeContractName()}` },
+    { label: 'Daily Pts Target', val: `${dailyPts} pts` },
+    { label: 'Point Value',     val: `$${activePointValue()}/pt` },
+  ]);
+
+  const ts = PDF_CFG.tableStyles(7);
+  doc.autoTable({
+    head: [['Mo','Wk','Date','Equity Start','Contracts','Pts/Day','Pts/Week','Profit/Day','Wkly Profit','Equity End','% Wk','% Mo']],
+    body: tableData.map(r => [
+      r.weekOfMonth===1 ? `Mo ${r.month}` : '',
+      r.week, formatDisplayDate(r.date),
+      fmt$(r.equity), r.contracts, r.dailyPts, r.weekPts,
+      fmt$(r.profitDay), fmt$(r.weekProfit), fmt$(r.endEquity),
+      fmtPct(r.pctWeek), r.pctMonth!==null ? fmtPct(r.pctMonth) : ''
+    ]),
+    startY: y, margin: { left: 10, right: 10 },
+    ...ts,
+    columnStyles: {
+      0: { cellWidth:14, halign:'left',   textColor:c.navy,  fontStyle:'bold' },
+      1: { cellWidth:10, halign:'center', textColor:c.grey },
+      2: { cellWidth:22, halign:'left',   textColor:c.navy },
+      3: { cellWidth:24, halign:'right',  textColor:c.green, fontStyle:'bold' },
+      4: { cellWidth:18, halign:'center', textColor:c.navy,  fontStyle:'bold' },
+      5: { cellWidth:14, halign:'right',  textColor:c.black },
+      6: { cellWidth:14, halign:'right',  textColor:c.black },
+      7: { cellWidth:22, halign:'right',  textColor:c.black },
+      8: { cellWidth:22, halign:'right',  textColor:c.green, fontStyle:'bold' },
+      9: { cellWidth:24, halign:'right',  textColor:c.green, fontStyle:'bold' },
+      10:{ cellWidth:14, halign:'right',  textColor:c.grey },
+      11:{ cellWidth:14, halign:'right',  textColor:c.navy,  fontStyle:'bold' }
+    },
+    didParseCell: data => {
+      if (data.section === 'body') {
+        const row = tableData[data.row.index];
+        if (row && row.isMonthEnd) {
+          data.cell.styles.lineColor = c.orange;
+          data.cell.styles.lineWidth = 0.5;
+        }
+        // No yellow highlight — contract upgrade rows are plain white
+      }
+    },
+    didDrawPage: data => PDF_CFG.footer(doc, W, H,
+      'Capital Doubling Contract Scale  |  10 Micros = 1 Mini',
+      data.pageNumber)
+  });
+
+  doc.save(`FOCUS_Projection_${activeContractName()}_${document.getElementById('startDate').value.replace(/-/g,'')}.pdf`);
+}
+
+// ─── LOG PDF ──────────────────────────────────────────────────────────────
+function exportLogPDF() {
+  if (logRows.length === 0) { alert('No log entries to export.'); return; }
+  const { jsPDF } = window.jspdf;
+  const c = PDF_CFG.C;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  const tradedRows = logRows.filter(r => !r.noTrade);
+  let totGross=0, totNet=0, totActual=0, totTarget=0;
+  tradedRows.forEach(r => {
+    const v = getLogRowValues(r.id);
+    totGross+=v.gross; totNet+=v.net;
+    totActual+=v.actualPts; totTarget+=parseFloat(r.targetPts)||0;
+  });
+
+  let y = PDF_CFG.header(doc, W,
+    'F.O.C.U.S. — Daily Trading Log',
+    'Capital Doubling & Contract Scaling Strategy'
+  );
+
+  y = PDF_CFG.summaryStrip(doc, W, y, [
+    { label: 'Days Logged',   val: String(logRows.length) },
+    { label: 'Days Traded',   val: String(tradedRows.length) },
+    { label: 'Total Actual Pts', val: totActual.toFixed(1) },
+    { label: 'Target Pts',    val: totTarget.toFixed(1) },
+    { label: 'vs Plan',       val: (totActual-totTarget>=0?'+':'')+(totActual-totTarget).toFixed(1)+' pts' },
+    { label: 'Gross P&L',     val: fmt$(totGross) },
+    { label: 'Net P&L',       val: fmt$(totNet) },
+  ]);
+
+  const ts = PDF_CFG.tableStyles(7.5);
+  doc.autoTable({
+    head: [['#','Date','No Trade','Instrument','Target Pts','Actual Pts','Contracts','Gross P&L','Fees','Net P&L','vs Plan','Notes']],
+    body: logRows.map((row, idx) => {
+      const vals = getLogRowValues(row.id);
+      return [
+        idx+1, row.date, row.noTrade ? 'YES' : '',
+        row.instrument, row.targetPts,
+        row.noTrade ? '—' : row.actualPts,
+        row.noTrade ? '—' : row.contracts,
+        row.noTrade ? '—' : fmt$(vals.gross),
+        row.noTrade ? '—' : fmt$(vals.fees),
+        row.noTrade ? '—' : fmt$(vals.net),
+        vals.vsPlan !== null ? (vals.vsPlan>=0?'+':'')+vals.vsPlan.toFixed(1) : '—',
+        row.notes
+      ];
+    }),
+    startY: y, margin: { left:10, right:10 },
+    ...ts,
+    columnStyles: {
+      0: { cellWidth:10, halign:'center' },
+      1: { cellWidth:22, halign:'center', textColor:c.navy },
+      2: { cellWidth:16, halign:'center', textColor:c.grey },
+      3: { cellWidth:20, halign:'center', fontStyle:'bold', textColor:c.navy },
+      4: { cellWidth:18, halign:'right' },
+      5: { cellWidth:18, halign:'right', fontStyle:'bold' },
+      6: { cellWidth:18, halign:'center' },
+      7: { cellWidth:22, halign:'right', fontStyle:'bold' },
+      8: { cellWidth:16, halign:'right', textColor:c.red },
+      9: { cellWidth:22, halign:'right', fontStyle:'bold' },
+      10:{ cellWidth:18, halign:'right' },
+      11:{ cellWidth:0 }
+    },
+    didParseCell: data => {
+      if (data.section === 'body') {
+        const row = logRows[data.row.index];
+        if (!row) return;
+        if (row.noTrade) { data.cell.styles.textColor = c.grey; return; }
+        const vals = getLogRowValues(row.id);
+        if (data.column.index === 7) data.cell.styles.textColor = vals.gross >= 0 ? c.green : c.red;
+        if (data.column.index === 9) data.cell.styles.textColor = vals.net   >= 0 ? c.green : c.red;
+        if (data.column.index === 10 && vals.vsPlan !== null)
+          data.cell.styles.textColor = vals.vsPlan >= 0 ? c.green : c.red;
+      }
+    },
+    didDrawPage: data => PDF_CFG.footer(doc, W, H, 'Daily Trading Log', data.pageNumber)
+  });
+
+  doc.save(`FOCUS_TradingLog_${formatCSVDate(new Date())}.pdf`);
+}
+
+// ─── SYNC LOG START CAP ──────────────────────────────────────────────────
+function syncLogStartCap() {
+  const projCap = parseFloat(document.getElementById('startCapital').value) || 1500;
+  const logEl   = document.getElementById('logStartCap');
+  if (logEl && !logEl.dataset.manuallySet) logEl.value = projCap;
+}
+
+// ─── TARGET TABLES DATA ──────────────────────────────────────────────────
+const DEFAULT_GOALS = [
+  { year:'2024', daily:50,    annual:12000,  age:58, notes:'' },
+  { year:'2025', daily:100,   annual:24000,  age:59, notes:'' },
+  { year:'2026', daily:200,   annual:48000,  age:60, notes:'' },
+  { year:'2027', daily:400,   annual:96000,  age:61, notes:'' },
+  { year:'2028', daily:600,   annual:144000, age:62, notes:'' },
+  { year:'2029', daily:800,   annual:192000, age:63, notes:'' },
+  { year:'2030', daily:1000,  annual:240000, age:64, notes:'' },
+  { year:'2031', daily:2000,  annual:480000, age:65, notes:'' },
+];
+const DEFAULT_INSTRUMENTS = [
+  { name:'MNQ', tick:0.50,  point:2,     ticks_per_point:4,   notes:'' },
+  { name:'NQ',  tick:5.00,  point:20,    ticks_per_point:4,   notes:'' },
+  { name:'MGC', tick:1.00,  point:10,    ticks_per_point:10,  notes:'' },
+  { name:'GC',  tick:10.00, point:100,   ticks_per_point:10,  notes:'' },
+  { name:'M2K', tick:0.50,  point:5,     ticks_per_point:10,  notes:'' },
+  { name:'RTY', tick:5.00,  point:50,    ticks_per_point:10,  notes:'' },
+  { name:'MYM', tick:0.50,  point:1,     ticks_per_point:1,   notes:'' },
+  { name:'YM',  tick:5.00,  point:5,     ticks_per_point:1,   notes:'' },
+  { name:'MES', tick:1.25,  point:5,     ticks_per_point:10,  notes:'' },
+  { name:'ES',  tick:12.50, point:50,    ticks_per_point:4,   notes:'' },
+  { name:'SIL', tick:5.00,  point:500,   ticks_per_point:100, notes:'' },
+  { name:'SI',  tick:25.00, point:5000,  ticks_per_point:200, notes:'' },
+  { name:'CL',  tick:10.00, point:1000,  ticks_per_point:100, notes:'' },
+  { name:'MCL', tick:1.00,  point:100,   ticks_per_point:100, notes:'' },
+];
+
+let goalsData       = JSON.parse(JSON.stringify(DEFAULT_GOALS));
+let instrumentsData = JSON.parse(JSON.stringify(DEFAULT_INSTRUMENTS));
+
+function renderGoalsTable() {
+  const tbody = document.getElementById('goalsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  goalsData.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #0d1e35';
+    const isEven = idx % 2 === 0;
+    tr.style.background = isEven ? '#0f1b2d' : '#0a1422';
+    tr.innerHTML = `
+      <td style="text-align:center;color:var(--text-dim);font-size:12px;padding:7px 6px;">${idx+1}</td>
+      <td style="padding:5px 6px;"><input type="text" value="${row.year}" onchange="cascadeGoalYear(${idx},this.value)" style="background:#0a1628;border:1px solid var(--border);color:var(--orange);border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:80px;outline:none;text-align:center;"></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.daily}" onchange="cascadeGoalDaily(${idx},parseFloat(this.value)||0)" style="background:#0a1628;border:1px solid var(--border);color:#22c55e;border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:110px;outline:none;text-align:right;"></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.annual}" onchange="goalsData[${idx}].annual=parseFloat(this.value)||0;saveState()" style="background:#0a1628;border:1px solid var(--border);color:#22c55e;border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:130px;outline:none;text-align:right;" title="Auto = Daily × 240 trading days. Edit to override."></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.age}" onchange="cascadeGoalAge(${idx},parseInt(this.value)||0)" style="background:#0a1628;border:1px solid var(--border);color:var(--yellow);border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:70px;outline:none;text-align:center;"></td>
+      <td style="padding:5px 6px;"><input type="text" value="${row.notes}" placeholder="Notes..." onchange="goalsData[${idx}].notes=this.value;saveState()" style="background:#0a1628;border:1px solid var(--border);color:var(--white);border-radius:4px;padding:5px 8px;font-size:13px;width:200px;outline:none;"></td>
+      <td style="text-align:center;padding:5px 6px;"><button class="delete-row-btn" onclick="goalsData.splice(${idx},1);renderGoalsTable();saveState()">&#10005;</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Cascade year: changing row N auto-increments all rows after N
+function cascadeGoalYear(idx, val) {
+  const base = parseInt(val) || new Date().getFullYear();
+  goalsData[idx].year = String(base);
+  for (let i = idx + 1; i < goalsData.length; i++) {
+    goalsData[i].year = String(base + (i - idx));
+  }
+  renderGoalsTable(); saveState();
+}
+
+// Cascade age: changing row N auto-increments all rows after N
+function cascadeGoalAge(idx, val) {
+  goalsData[idx].age = val;
+  for (let i = idx + 1; i < goalsData.length; i++) {
+    goalsData[i].age = val + (i - idx);
+  }
+  renderGoalsTable(); saveState();
+}
+
+// Daily change: auto-calc annual = daily × 240 trading days (5 days × 48 weeks)
+// Annual field remains manually editable to override.
+function cascadeGoalDaily(idx, daily) {
+  goalsData[idx].daily = daily;
+  goalsData[idx].annual = Math.round(daily * 240);
+  renderGoalsTable(); saveState();
+}
+
+function addGoalRow() {
+  const lastYear = goalsData.length > 0 ? parseInt(goalsData[goalsData.length-1].year)+1 : new Date().getFullYear();
+  const lastAge  = goalsData.length > 0 ? (parseInt(goalsData[goalsData.length-1].age)||0)+1 : 58;
+  const lastDaily = goalsData.length > 0 ? goalsData[goalsData.length-1].daily : 0;
+  goalsData.push({ year: String(lastYear), daily: lastDaily, annual: Math.round(lastDaily * 240), age: lastAge, notes: '' });
+  renderGoalsTable(); saveState();
+}
+
+function renderInstrumentsTable() {
+  const tbody = document.getElementById('instrumentsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  instrumentsData.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #0d1e35';
+    const isEven = idx % 2 === 0;
+    tr.style.background = isEven ? '#0f1b2d' : '#0a1422';
+    tr.innerHTML = `
+      <td style="text-align:center;color:var(--text-dim);font-size:12px;padding:7px 6px;">${idx+1}</td>
+      <td style="padding:5px 6px;"><input type="text" value="${row.name}" onchange="instrumentsData[${idx}].name=this.value;saveState()" style="background:#0a1628;border:1px solid var(--border);color:var(--orange);border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:80px;outline:none;text-align:center;"></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.tick}" step="0.01" onchange="instrumentsData[${idx}].tick=parseFloat(this.value)||0;saveState()" style="background:#0a1628;border:1px solid var(--border);color:var(--accent);border-radius:4px;padding:5px 8px;font-size:14px;width:100px;outline:none;text-align:right;"></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.point}" step="0.01" onchange="instrumentsData[${idx}].point=parseFloat(this.value)||0;saveState()" style="background:#0a1628;border:1px solid var(--border);color:#22c55e;border-radius:4px;padding:5px 8px;font-size:14px;font-weight:700;width:100px;outline:none;text-align:right;"></td>
+      <td style="padding:5px 6px;"><input type="number" value="${row.ticks_per_point}" step="1" onchange="instrumentsData[${idx}].ticks_per_point=parseInt(this.value)||0;saveState()" style="background:#0a1628;border:1px solid var(--border);color:var(--yellow);border-radius:4px;padding:5px 8px;font-size:14px;width:100px;outline:none;text-align:center;"></td>
+      <td style="padding:5px 6px;"><input type="text" value="${row.notes}" placeholder="Notes..." onchange="instrumentsData[${idx}].notes=this.value;saveState()" style="background:#0a1628;border:1px solid var(--border);color:var(--white);border-radius:4px;padding:5px 8px;font-size:13px;width:200px;outline:none;"></td>
+      <td style="text-align:center;padding:5px 6px;"><button class="delete-row-btn" onclick="instrumentsData.splice(${idx},1);renderInstrumentsTable();saveState()">&#10005;</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addInstrumentRow() {
+  instrumentsData.push({ name:'', tick:0, point:0, ticks_per_point:0, notes:'' });
+  renderInstrumentsTable(); saveState();
+}
+
+// Goals CSV
+function exportGoalsCSV() {
+  const headers = ['Row','Year','Daily_Target','Annual_Target','Age','Notes'];
+  const rows = goalsData.map((r,i) => [i+1, r.year, r.daily, r.annual, r.age, `"${r.notes}"`]);
+  downloadFile([headers,...rows].map(r=>r.join(',')).join('\n'), `FOCUS_Income_Goals_${formatCSVDate(new Date())}.csv`, 'text/csv');
+}
+
+// Instruments CSV
+function exportInstrumentsCSV() {
+  const headers = ['Row','Instrument','Tick','Point','Ticks_Per_Point','Notes'];
+  const rows = instrumentsData.map((r,i) => [i+1, r.name, r.tick, r.point, r.ticks_per_point, `"${r.notes}"`]);
+  downloadFile([headers,...rows].map(r=>r.join(',')).join('\n'), `FOCUS_Instruments_${formatCSVDate(new Date())}.csv`, 'text/csv');
+}
+
+// Goals PDF
+function exportGoalsPDF() {
+  const { jsPDF } = window.jspdf;
+  const c = PDF_CFG.C;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  const y = PDF_CFG.header(doc, W,
+    'F.O.C.U.S. — Income Goals',
+    'Capital Doubling & Contract Scaling Strategy'
+  );
+
+  const ts = PDF_CFG.tableStyles(11);
+  doc.autoTable({
+    head: [['Year','Daily Target','Annual Target','Age','Notes']],
+    body: goalsData.map(r => [r.year, `$${r.daily.toLocaleString()}/day`, `$${r.annual.toLocaleString()}/year`, r.age, r.notes]),
+    startY: y, margin: { left:10, right:10 },
+    ...ts,
+    columnStyles: {
+      0: { halign:'center', textColor:c.navy,  fontStyle:'bold' },
+      1: { halign:'right',  textColor:c.green, fontStyle:'bold' },
+      2: { halign:'right',  textColor:c.green, fontStyle:'bold' },
+      3: { halign:'center', textColor:c.navy },
+      4: { halign:'left' }
+    },
+    didDrawPage: data => PDF_CFG.footer(doc, W, H, 'Income Goals', data.pageNumber)
+  });
+
+  doc.save(`FOCUS_Income_Goals_${formatCSVDate(new Date())}.pdf`);
+}
+
+// Instruments PDF
+function exportInstrumentsPDF() {
+  const { jsPDF } = window.jspdf;
+  const c = PDF_CFG.C;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  const y = PDF_CFG.header(doc, W,
+    'F.O.C.U.S. — Instrument Values',
+    'Futures Contract Reference Sheet'
+  );
+
+  const ts = PDF_CFG.tableStyles(11);
+  doc.autoTable({
+    head: [['Instrument','Tick ($)','Point ($)','# Ticks / Point','Notes']],
+    body: instrumentsData.map(r => [r.name, `$${r.tick.toFixed(2)}`, `$${r.point.toLocaleString()}`, r.ticks_per_point, r.notes]),
+    startY: y, margin: { left:10, right:10 },
+    ...ts,
+    columnStyles: {
+      0: { halign:'center', textColor:c.navy,  fontStyle:'bold' },
+      1: { halign:'right',  textColor:c.navy },
+      2: { halign:'right',  textColor:c.green, fontStyle:'bold' },
+      3: { halign:'center', textColor:c.navy },
+      4: { halign:'left' }
+    },
+    didDrawPage: data => PDF_CFG.footer(doc, W, H, 'Instrument Values Reference', data.pageNumber)
+  });
+
+  doc.save(`FOCUS_Instruments_${formatCSVDate(new Date())}.pdf`);
+}
+
+// ─── STORAGE BADGE ───────────────────────────────────────────────────────
+function showStorageBadge() {
+  const existing = document.getElementById('storageBadge');
+  if (existing) existing.remove();
+  const badge = document.createElement('div');
+  badge.id = 'storageBadge';
+  badge.style.cssText = `
+    position:fixed; bottom:14px; right:16px; z-index:999;
+    background:#0f1b2d; border:1px solid #1e3a5f; border-radius:8px;
+    padding:8px 14px; font-size:11px; color:#8fa8c8;
+    display:flex; align-items:center; gap:10px; box-shadow:0 2px 12px rgba(0,0,0,0.5);
+  `;
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const hasData = !!saved;
+  const logCount = logRows.length;
+  badge.innerHTML = `
+    <span style="color:#22c55e;font-size:14px;">&#9679;</span>
+    <span>Auto-save <strong style="color:#fff;">ON</strong> &nbsp;|&nbsp; ${logCount} log row${logCount!==1?'s':''} saved locally</span>
+    <button onclick="clearSavedData()" style="
+      background:#7f1d1d;border:none;color:#fff;border-radius:4px;
+      padding:3px 8px;font-size:10px;cursor:pointer;margin-left:4px;
+    ">Clear</button>
+  `;
+  document.body.appendChild(badge);
+}
+
+function clearSavedData() {
+  if (!confirm('Clear all saved data (log rows + settings)? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  logRows = [];
+  dateOverrides = {};
+  renderLogTable();
+  showStorageBadge();
+  alert('Saved data cleared.');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
+function fmt$(n) { return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtPct(n) { return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'; }
+function formatDisplayDate(d) { return d.toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'}); }
+function formatCSVDate(d) { return d.toISOString().slice(0,10); }
+function toInputDate(d) { return d.toISOString().slice(0,10); }
+function downloadFile(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
