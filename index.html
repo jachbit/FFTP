@@ -314,7 +314,7 @@ footer strong { color: var(--orange); }
     </p>
     <p style="font-size:10px;font-weight:400;color:var(--text-dim);margin-top:3px;letter-spacing:0.2px;">
       &#127775; Inspired by &amp; grateful to
-      <a href="https://twitter.com/I_Am_The_ICT" target="_blank" style="color:var(--accent);font-weight:700;text-decoration:none;">@I_Am_The_ICT</a>
+      <a href="https://x.com/I_Am_The_ICT/status/1685634141897826306?s=20" target="_blank" style="color:var(--accent);font-weight:700;text-decoration:none;">@I_Am_The_ICT</a>
       &mdash; ICT, The Inner Circle Trader
     </p>
   </div>
@@ -785,13 +785,13 @@ footer strong { color: var(--orange); }
     <div style="background:#071020; border:1px solid var(--accent); border-radius:6px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;">
       <div style="font-size:28px; line-height:1;">&#127775;</div>
       <div style="flex:1;">
-        <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px;">Inspired by The Inner Circle Trader (ICT) &mdash; <a href="https://twitter.com/I_Am_The_ICT" target="_blank" style="color:var(--accent); text-decoration:none;">@I_Am_The_ICT</a></div>
+        <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px;">Inspired by The Inner Circle Trader (ICT) &mdash; <a href="https://x.com/I_Am_The_ICT/status/1685634141897826306?s=20" target="_blank" style="color:var(--accent); text-decoration:none;">@I_Am_The_ICT</a></div>
         <div style="font-size:12px; color:var(--white); line-height:1.8; margin-bottom:10px;">
           A huge thank you to ICT for sharing his knowledge freely. Everything I learned about <strong>time, price action, market structure, liquidity, and how smart money moves</strong> came through his teachings. This trading plan and tool are built on that foundation — modified and adapted for our own journey.
         </div>
         <div style="font-size:12px; color:var(--white); line-height:1.8; margin-bottom:10px;">
           The contract scaling concept used in this tool was inspired by a tweet from <strong>The Inner Circle Trader (ICT)</strong> &mdash;
-          <a href="https://twitter.com/I_Am_The_ICT" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700;">@I_Am_The_ICT</a> (Jul 30, 2023):
+          <a href="https://x.com/I_Am_The_ICT/status/1685634141897826306?s=20" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700;">@I_Am_The_ICT</a> (Jul 30, 2023):
         </div>
         <div style="background:#0a1628; border-left:3px solid var(--accent); border-radius:4px; padding:10px 14px; font-size:12px; color:var(--white); line-height:1.8; font-style:italic; margin-bottom:10px;">
           "Use 80 points net on MNQ per week goal. Allowing for 1 single micro added when new $2,000 equity is made."
@@ -2066,102 +2066,67 @@ function exportPlanPDF() {
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const c = PDF_CFG.C;
-  const LM = 14, RM = W - 14, TW = W - 28;
+  const LM = 14, TW = W - 28;
 
   function checkPage(y, need) {
-    if (y + need > H - 22) { doc.addPage(); PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages()); return 18; }
+    if (y + need > H - 22) {
+      PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages());
+      doc.addPage();
+      return 18;
+    }
     return y;
   }
 
-  function sectionHeader(y, num, title, accent) {
+  // Section heading: white bg, navy bold text, orange left rule, light grey bottom divider
+  function sectionHeader(y, num, title, accentColor) {
     y = checkPage(y, 12);
-    doc.setFillColor(...c.navy);
-    doc.rect(LM, y, TW, 8, 'F');
-    doc.setDrawColor(...(accent || c.orange));
-    doc.setLineWidth(1.2);
-    doc.line(LM, y, LM, y + 8);
+    doc.setDrawColor(...(accentColor || c.orange));
+    doc.setLineWidth(1.5);
+    doc.line(LM, y, LM, y + 7);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...(accent || c.orange));
-    doc.text(`${num}. ${title}`, LM + 4, y + 5.5);
-    return y + 12;
+    doc.setFontSize(11);
+    doc.setTextColor(...c.navy);
+    doc.text(`${num}.  ${title}`, LM + 5, y + 5.5);
+    doc.setDrawColor(...c.lightGrey);
+    doc.setLineWidth(0.3);
+    doc.line(LM, y + 8.5, W - LM, y + 8.5);
+    return y + 13;
   }
 
+  // Bullet row: white bg, navy bold label, black body text, light grey separator
   function bullet(y, label, text, labelColor) {
-    y = checkPage(y, 10);
-    doc.setFillColor(...c.altRow);
-    doc.rect(LM, y, TW, 8, 'F');
+    const bodyText = doc.splitTextToSize(text, TW - 46);
+    const rowH = Math.max(8, bodyText.length * 5 + 4);
+    y = checkPage(y, rowH + 2);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor(...(labelColor || c.orange));
-    doc.text(label + ':', LM + 3, y + 5.5);
-    const lw = doc.getTextWidth(label + ': ') + 3;
+    doc.setTextColor(...(labelColor || c.navy));
+    doc.text(label + ':', LM + 2, y + 5.5);
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
     doc.setTextColor(...c.black);
-    const lines = doc.splitTextToSize(text, TW - lw - 3);
-    if (lines.length === 1) {
-      doc.text(lines[0], LM + lw, y + 5.5);
-      return y + 10;
-    }
-    // multi-line: expand row
-    const rowH = lines.length * 5 + 4;
-    doc.setFillColor(...c.altRow);
-    doc.rect(LM, y, TW, rowH, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...(labelColor || c.orange));
-    doc.text(label + ':', LM + 3, y + 5.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...c.black);
-    lines.forEach((l, i) => doc.text(l, LM + lw, y + 5.5 + i * 5));
+    bodyText.forEach((l, i) => doc.text(l, LM + 44, y + 5.5 + i * 5));
+    doc.setDrawColor(...c.lightGrey);
+    doc.setLineWidth(0.2);
+    doc.line(LM, y + rowH, W - LM, y + rowH);
     return y + rowH + 2;
   }
 
-  // ── Page 1 header ──
-  let y = PDF_CFG.header(doc, W, 'F.O.C.U.S.© Basic Trading Plan', 'Capital Doubling & Contract Scaling Strategy  |  Futures Trade Projections');
+  // ── Header ──
+  let y = PDF_CFG.header(doc, W,
+    'F.O.C.U.S.© Basic Trading Plan',
+    'Capital Doubling & Contract Scaling Strategy  |  Futures Trade Projections  |  Jachbit 2026');
 
-  // ── ICT Credit box ──
-  y = checkPage(y, 32);
-  doc.setFillColor(7, 16, 32);
-  doc.rect(LM, y, TW, 30, 'F');
-  doc.setDrawColor(...c.navy);
-  doc.setLineWidth(0.5);
-  doc.rect(LM, y, TW, 30);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(59, 130, 246);
-  doc.text('Inspired by The Inner Circle Trader (ICT) — @I_Am_The_ICT', LM + 4, y + 6);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(...c.black);
-  const ictLines = doc.splitTextToSize(
-    'A huge thank you to ICT for sharing his knowledge freely. The contract scaling concept used in this tool was inspired by a tweet from @I_Am_The_ICT (Jul 30, 2023):',
-    TW - 8);
-  ictLines.forEach((l, i) => doc.text(l, LM + 4, y + 12 + i * 4.5));
-  const quoteY = y + 12 + ictLines.length * 4.5 + 2;
-  doc.setFillColor(10, 22, 40);
-  doc.rect(LM + 4, quoteY, TW - 8, 8, 'F');
-  doc.setDrawColor(59, 130, 246);
-  doc.setLineWidth(0.8);
-  doc.line(LM + 4, quoteY, LM + 4, quoteY + 8);
-  doc.setFont('helvetica', 'bolditalic');
-  doc.setFontSize(8);
-  doc.setTextColor(...c.black);
-  doc.text('"Use 80 points net on MNQ per week goal. Allowing for 1 single micro added when new $2,000 equity is made."', LM + 7, quoteY + 5, { maxWidth: TW - 12 });
-  y += 32 + 4;
-
-  // ── Intro strip ──
-  y = checkPage(y, 12);
-  doc.setFillColor(7, 16, 32);
-  doc.rect(LM, y, TW, 10, 'F');
-  doc.setDrawColor(...c.orange);
-  doc.setLineWidth(1);
-  doc.line(LM, y, LM, y + 10);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(...c.orange);
-  const intro = doc.splitTextToSize('A robust futures trading plan is a written roadmap outlining your daily schedule, specific market focus, entry/exit criteria, and strict risk management rules.', TW - 6);
-  intro.forEach((l, i) => doc.text(l, LM + 4, y + 4 + i * 4));
-  y += 14;
+  // ── Intro paragraph ──
+  y = checkPage(y, 14);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(9);
+  doc.setTextColor(...c.grey);
+  const intro = doc.splitTextToSize(
+    'A robust futures trading plan is a written roadmap outlining your daily schedule, specific market focus, entry/exit criteria, and strict risk management rules. Designing a consistent strategy helps eliminate emotional decision-making.',
+    TW);
+  intro.forEach((l, i) => doc.text(l, LM, y + i * 5));
+  y += intro.length * 5 + 6;
 
   // ── Section 1 ──
   y = sectionHeader(y, 1, 'Market Selection & Timeframes');
@@ -2183,35 +2148,31 @@ function exportPlanPDF() {
 
   // ── Section 4 — RISK ──
   y = sectionHeader(y, 4, 'Risk & Leverage Management', c.red);
-  y = bullet(y, 'Stop-Loss (SL)', 'Every trade must have a predefined SL to automatically cut losses if the setup fails.', c.red);
+  y = bullet(y, 'Stop-Loss (SL)', 'Every trade must have a predefined stop-loss to automatically cut losses if the setup fails.', c.red);
   y = bullet(y, 'Position Sizing', 'Never risk more than 1%-2% of your total account equity on a single trade. Be highly aware of initial and maintenance margin requirements.', c.red);
-  y = bullet(y, 'First Loss Rule', 'After the first loss, cut your risk in half. If you risked 2% on the first trade, next trade is 1% only.', c.red);
-  y = checkPage(y, 12);
-  doc.setFillColor(50, 10, 10);
-  doc.rect(LM, y, TW, 8, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(...c.red);
-  doc.text('STOP TRADING RULE:', LM + 3, y + 5.5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...c.black);
-  doc.text('After TWO consecutive losses — STOP. Close the app. Walk away. Do NOT revenge trade!!!', LM + 50, y + 5.5, { maxWidth: TW - 53 });
-  y += 10;
+  y = bullet(y, 'First Loss Rule', 'After the first loss, cut your risk in half. If you risked 2% on the first trade, the next trade is 1% only.', c.red);
+  y = bullet(y, 'STOP TRADING', 'After TWO consecutive losses — STOP. Close the platform and walk away. Do NOT revenge trade at any cost!!!', c.red);
   y = bullet(y, 'Trades Per Day', 'Discipline yourself to 1 to 2 max trades per day.', c.red);
   y += 4;
 
   // ── Section 5 ──
   y = sectionHeader(y, 5, 'Post-Market Review');
   y = bullet(y, 'Trading Journal', 'Log every trade. Note the entry time, asset, setup type, profit/loss, and any emotional mistakes. Use the Trading Log tab in this app.');
-  y = bullet(y, 'Continuous Adjustment', 'Review your journal weekly to refine your plan. Small improvements compound over time.');
-  y += 6;
+  y = bullet(y, 'Continuous Adj.', 'Review your journal weekly to refine your plan. Small improvements compound over time.');
+  y += 8;
 
-  // ── Modified note ──
-  y = checkPage(y, 10);
+  // ── Disclaimer line ──
+  y = checkPage(y, 8);
+  doc.setDrawColor(...c.orange);
+  doc.setLineWidth(0.4);
+  doc.line(LM, y, W - LM, y);
+  y += 5;
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7.5);
   doc.setTextColor(...c.grey);
-  doc.text('Modified by Jachbit 2026 for a $1,500 account / 25K Apex — scaling by 1 contract per Starting Capital earned, conservatively and safely.', LM, y, { maxWidth: TW });
+  doc.text(
+    'Modified by Jachbit 2026 for a $1,500 account / 25K Apex — scaling by 1 contract per Starting Capital earned, conservatively and safely. For educational purposes only. Not financial advice.',
+    LM, y, { maxWidth: TW });
 
   PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages());
   doc.save(`FOCUS_TradingPlan_${formatCSVDate(new Date())}.pdf`);
