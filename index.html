@@ -1812,31 +1812,28 @@ const PDF_CFG = {
     rowBorder:[200, 210, 225],
   },
 
-  // Draw standard page header (white bg, orange top accent, navy title)
+  // Draw standard page header (white bg, navy title, thin navy rule — no colored bands)
   header(doc, W, title, subtitle) {
     const c = PDF_CFG.C;
-    // Orange top accent bar only — no dark fill
-    doc.setFillColor(...c.orange);
-    doc.rect(0, 0, W, 1.5, 'F');
-    // Title
+    // Title — navy bold, no filled bar
     doc.setTextColor(...c.navy);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(15);
-    doc.text(title, 10, 12);
+    doc.text(title, 10, 11);
     // Subtitle
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...c.grey);
-    doc.text(subtitle, 10, 19);
+    doc.text(subtitle, 10, 18);
     // Right: Jachbit / date
     doc.setTextColor(...c.navy);
     doc.setFontSize(8);
-    doc.text(`Jachbit 2026  |  ${formatDisplayDate(new Date())}`, W - 10, 19, { align: 'right' });
-    // Bottom rule under header
-    doc.setDrawColor(...c.navy);
+    doc.text(`Jachbit 2026  |  ${formatDisplayDate(new Date())}`, W - 10, 18, { align: 'right' });
+    // Thin grey rule under header — no orange band
+    doc.setDrawColor(...c.lightGrey);
     doc.setLineWidth(0.4);
-    doc.line(10, 22, W - 10, 22);
-    return 26; // return startY for next element
+    doc.line(10, 21, W - 10, 21);
+    return 25;
   },
 
   // Draw a clean summary strip (no boxes, plain text pairs)
