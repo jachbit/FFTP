@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>F.O.C.U.S. Futures Trade Projections</title>
+<!-- GoatCounter analytics — privacy-friendly visitor tracking -->
+<script data-goatcounter="https://jachbit-fftp.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -333,6 +336,10 @@ footer strong { color: var(--orange); }
     <div id="header-clock" style="font-size:22px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1;">00:00:00</div>
     <div style="font-size:11px;color:var(--text-dim);letter-spacing:0.5px;text-align:right;">
       <span id="header-date"></span> &nbsp;|&nbsp; <span style="color:var(--orange);font-weight:700;">ET</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);text-align:right;margin-bottom:4px;">
+      &#128065; <span id="visitorCount" style="color:var(--white);font-weight:700;">—</span>
+      <span style="color:var(--text-dim);">visitors</span>
     </div>
     <a href="https://raw.githubusercontent.com/jachbit/FFTP/main/FFTP_User_Guide.pdf"
        target="_blank" download="FFTP_User_Guide.pdf"
@@ -1065,6 +1072,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderInstrumentsTable();
   renderSharesTable();
   showStorageBadge();
+  loadVisitorCount();
 });
 
 // ─── TABS ────────────────────────────────────────────────────────────────
@@ -2485,6 +2493,17 @@ function exportInstrumentsPDF() {
 }
 
 // ─── STORAGE BADGE ───────────────────────────────────────────────────────
+// ─── GOATCOUNTER VISITOR COUNT ───────────────────────────────────────────────
+function loadVisitorCount() {
+  fetch('https://jachbit-fftp.goatcounter.com/counter/FFTP.json')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('visitorCount');
+      if (el && d.count) el.textContent = parseInt(d.count).toLocaleString();
+    })
+    .catch(() => {}); // silently fail if API unavailable
+}
+
 function showStorageBadge() {
   const badge = document.getElementById('storageBadge');
   if (!badge) return;
