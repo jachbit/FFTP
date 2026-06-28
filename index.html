@@ -776,6 +776,11 @@ footer strong { color: var(--orange); }
 <div class="tab-panel" id="tab-plan">
   <div style="max-width:900px; margin:0 auto; padding:28px 24px;">
 
+    <!-- PDF Export button row -->
+    <div style="display:flex; justify-content:flex-end; margin-bottom:18px;">
+      <button class="btn btn-accent" onclick="exportPlanPDF()">&#128196; Export Trading Plan PDF</button>
+    </div>
+
     <!-- ICT Credit -->
     <div style="background:#071020; border:1px solid var(--accent); border-radius:6px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;">
       <div style="font-size:28px; line-height:1;">&#127775;</div>
@@ -788,10 +793,10 @@ footer strong { color: var(--orange); }
           The contract scaling concept used in this tool was inspired by a tweet from <strong>The Inner Circle Trader (ICT)</strong> &mdash;
           <a href="https://twitter.com/I_Am_The_ICT" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700;">@I_Am_The_ICT</a> (Jul 30, 2023):
         </div>
-        <div style="background:#0a1628; border-left:3px solid var(--accent); border-radius:4px; padding:10px 14px; font-size:12px; color:var(--text-dim); line-height:1.8; font-style:italic; margin-bottom:10px;">
+        <div style="background:#0a1628; border-left:3px solid var(--accent); border-radius:4px; padding:10px 14px; font-size:12px; color:var(--white); line-height:1.8; font-style:italic; margin-bottom:10px;">
           "Use 80 points net on MNQ per week goal. Allowing for 1 single micro added when new $2,000 equity is made."
         </div>
-        <div style="font-size:11px; color:var(--text-dim);">
+        <div style="font-size:11px; color:var(--white);">
           Modified by Jachbit 2026 for a $1,500 account / 25K Apex — scaling by 1 contract per Starting Capital earned, conservatively and safely.
         </div>
       </div>
@@ -2052,6 +2057,164 @@ function exportLogPDF() {
   });
 
   doc.save(`FOCUS_TradingLog_${formatCSVDate(new Date())}.pdf`);
+}
+
+// ─── BASIC TRADING PLAN PDF ──────────────────────────────────────────────
+function exportPlanPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const c = PDF_CFG.C;
+  const LM = 14, RM = W - 14, TW = W - 28;
+
+  function checkPage(y, need) {
+    if (y + need > H - 22) { doc.addPage(); PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages()); return 18; }
+    return y;
+  }
+
+  function sectionHeader(y, num, title, accent) {
+    y = checkPage(y, 12);
+    doc.setFillColor(...c.navy);
+    doc.rect(LM, y, TW, 8, 'F');
+    doc.setDrawColor(...(accent || c.orange));
+    doc.setLineWidth(1.2);
+    doc.line(LM, y, LM, y + 8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...(accent || c.orange));
+    doc.text(`${num}. ${title}`, LM + 4, y + 5.5);
+    return y + 12;
+  }
+
+  function bullet(y, label, text, labelColor) {
+    y = checkPage(y, 10);
+    doc.setFillColor(...c.altRow);
+    doc.rect(LM, y, TW, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...(labelColor || c.orange));
+    doc.text(label + ':', LM + 3, y + 5.5);
+    const lw = doc.getTextWidth(label + ': ') + 3;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...c.black);
+    const lines = doc.splitTextToSize(text, TW - lw - 3);
+    if (lines.length === 1) {
+      doc.text(lines[0], LM + lw, y + 5.5);
+      return y + 10;
+    }
+    // multi-line: expand row
+    const rowH = lines.length * 5 + 4;
+    doc.setFillColor(...c.altRow);
+    doc.rect(LM, y, TW, rowH, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...(labelColor || c.orange));
+    doc.text(label + ':', LM + 3, y + 5.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...c.black);
+    lines.forEach((l, i) => doc.text(l, LM + lw, y + 5.5 + i * 5));
+    return y + rowH + 2;
+  }
+
+  // ── Page 1 header ──
+  let y = PDF_CFG.header(doc, W, 'F.O.C.U.S.© Basic Trading Plan', 'Capital Doubling & Contract Scaling Strategy  |  Futures Trade Projections');
+
+  // ── ICT Credit box ──
+  y = checkPage(y, 32);
+  doc.setFillColor(7, 16, 32);
+  doc.rect(LM, y, TW, 30, 'F');
+  doc.setDrawColor(...c.navy);
+  doc.setLineWidth(0.5);
+  doc.rect(LM, y, TW, 30);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(59, 130, 246);
+  doc.text('Inspired by The Inner Circle Trader (ICT) — @I_Am_The_ICT', LM + 4, y + 6);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...c.black);
+  const ictLines = doc.splitTextToSize(
+    'A huge thank you to ICT for sharing his knowledge freely. The contract scaling concept used in this tool was inspired by a tweet from @I_Am_The_ICT (Jul 30, 2023):',
+    TW - 8);
+  ictLines.forEach((l, i) => doc.text(l, LM + 4, y + 12 + i * 4.5));
+  const quoteY = y + 12 + ictLines.length * 4.5 + 2;
+  doc.setFillColor(10, 22, 40);
+  doc.rect(LM + 4, quoteY, TW - 8, 8, 'F');
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.8);
+  doc.line(LM + 4, quoteY, LM + 4, quoteY + 8);
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setFontSize(8);
+  doc.setTextColor(...c.black);
+  doc.text('"Use 80 points net on MNQ per week goal. Allowing for 1 single micro added when new $2,000 equity is made."', LM + 7, quoteY + 5, { maxWidth: TW - 12 });
+  y += 32 + 4;
+
+  // ── Intro strip ──
+  y = checkPage(y, 12);
+  doc.setFillColor(7, 16, 32);
+  doc.rect(LM, y, TW, 10, 'F');
+  doc.setDrawColor(...c.orange);
+  doc.setLineWidth(1);
+  doc.line(LM, y, LM, y + 10);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...c.orange);
+  const intro = doc.splitTextToSize('A robust futures trading plan is a written roadmap outlining your daily schedule, specific market focus, entry/exit criteria, and strict risk management rules.', TW - 6);
+  intro.forEach((l, i) => doc.text(l, LM + 4, y + 4 + i * 4));
+  y += 14;
+
+  // ── Section 1 ──
+  y = sectionHeader(y, 1, 'Market Selection & Timeframes');
+  y = bullet(y, 'Markets', 'Choose 1 to 2 highly liquid markets to specialize in — e.g. ES (E-mini S&P 500), NQ (E-mini Nasdaq 100), or CL (Crude Oil).');
+  y = bullet(y, 'Timeframes', 'Identify whether you are a scalper, day trader, or swing trader. Most day traders use the 2-min, 5-min, or 15-min charts.');
+  y += 4;
+
+  // ── Section 2 ──
+  y = sectionHeader(y, 2, 'Daily Routine & Pre-Market Setup');
+  y = bullet(y, 'Preparation', 'Log in 30-60 minutes before market open. Mark key levels: Previous Day Close, Previous Day High (PDH), Previous Day Low (PDL), and Overnight High/Low.');
+  y = bullet(y, 'Trading Window', 'Stick to a designated active window — e.g. 8:30 AM - 11:00 AM ET — to avoid high-volatility, low-liquidity whipsaws.');
+  y += 4;
+
+  // ── Section 3 ──
+  y = sectionHeader(y, 3, 'Entry & Exit Criteria');
+  y = bullet(y, 'Trigger', 'Define exactly what conditions must be met to enter a trade (e.g. price breaking and reclaiming a pre-market high, or a Volume Profile value area breakout). Do NOT take gut trades.');
+  y = bullet(y, 'Profit Targets', 'Set precise targets using a fixed reward-to-risk ratio — e.g. 1.5:1 ($1.50 profit target for every $1 risked).');
+  y += 4;
+
+  // ── Section 4 — RISK ──
+  y = sectionHeader(y, 4, 'Risk & Leverage Management', c.red);
+  y = bullet(y, 'Stop-Loss (SL)', 'Every trade must have a predefined SL to automatically cut losses if the setup fails.', c.red);
+  y = bullet(y, 'Position Sizing', 'Never risk more than 1%-2% of your total account equity on a single trade. Be highly aware of initial and maintenance margin requirements.', c.red);
+  y = bullet(y, 'First Loss Rule', 'After the first loss, cut your risk in half. If you risked 2% on the first trade, next trade is 1% only.', c.red);
+  y = checkPage(y, 12);
+  doc.setFillColor(50, 10, 10);
+  doc.rect(LM, y, TW, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...c.red);
+  doc.text('STOP TRADING RULE:', LM + 3, y + 5.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...c.black);
+  doc.text('After TWO consecutive losses — STOP. Close the app. Walk away. Do NOT revenge trade!!!', LM + 50, y + 5.5, { maxWidth: TW - 53 });
+  y += 10;
+  y = bullet(y, 'Trades Per Day', 'Discipline yourself to 1 to 2 max trades per day.', c.red);
+  y += 4;
+
+  // ── Section 5 ──
+  y = sectionHeader(y, 5, 'Post-Market Review');
+  y = bullet(y, 'Trading Journal', 'Log every trade. Note the entry time, asset, setup type, profit/loss, and any emotional mistakes. Use the Trading Log tab in this app.');
+  y = bullet(y, 'Continuous Adjustment', 'Review your journal weekly to refine your plan. Small improvements compound over time.');
+  y += 6;
+
+  // ── Modified note ──
+  y = checkPage(y, 10);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...c.grey);
+  doc.text('Modified by Jachbit 2026 for a $1,500 account / 25K Apex — scaling by 1 contract per Starting Capital earned, conservatively and safely.', LM, y, { maxWidth: TW });
+
+  PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages());
+  doc.save(`FOCUS_TradingPlan_${formatCSVDate(new Date())}.pdf`);
 }
 
 // ─── SYNC LOG START CAP ──────────────────────────────────────────────────
