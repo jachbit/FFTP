@@ -2495,7 +2495,7 @@ function exportInstrumentsPDF() {
 // ─── STORAGE BADGE ───────────────────────────────────────────────────────
 // ─── GOATCOUNTER VISITOR COUNT ───────────────────────────────────────────────
 function loadVisitorCount() {
-  fetch('https://jachbit-fftp.goatcounter.com/counter/FFTP.json')
+  fetch('https://jachbit-fftp.goatcounter.com/counter/%2FFFTP.json')
     .then(r => r.json())
     .then(d => {
       const el = document.getElementById('visitorCount');
