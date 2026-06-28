@@ -200,7 +200,27 @@ def build():
         Paragraph(
             "Your data is saved automatically in your own browser. Nobody else can see or "
             "overwrite it — each user keeps their own private copy.", BODY_S),
-        sp(10),
+        sp(8),
+        grey_rule(),
+        Paragraph("INSPIRATION &amp; CREDIT", S("ict_hd", fontName="Helvetica-Bold", fontSize=8,
+            textColor=DARK_GREY, leading=11, alignment=TA_CENTER)),
+        sp(5),
+        Paragraph(
+            "The contract scaling concept in this tool was inspired by <b>The Inner Circle Trader (ICT)</b> — "
+            "<b>@I_Am_The_ICT</b> — who shared the following insight on X (Twitter), <b>July 30, 2023</b>:",
+            S("ict_body", fontSize=8, textColor=BLACK, leading=12, alignment=TA_CENTER)),
+        sp(5),
+        Paragraph(
+            "<i>\"Use 80 points net on MNQ per week goal. Allowing for 1 single micro added when new $2,000 equity is made.\"</i>",
+            S("ict_quote", fontName="Helvetica-Oblique", fontSize=8.5, textColor=NAVY,
+              leading=13, alignment=TA_CENTER)),
+        sp(4),
+        Paragraph(
+            "Modified by Jachbit 2026 for a $1,500 account / 25K Apex — scaling by 1 contract per Starting Capital earned, conservatively and safely.",
+            S("ict_mod", fontSize=7.5, textColor=DARK_GREY, leading=11, alignment=TA_CENTER)),
+        sp(6),
+        grey_rule(),
+        sp(4),
     ]
 
     # ── Access ────────────────────────────────────────────────────────────────
@@ -519,7 +539,7 @@ def build():
             "and may not be copied, distributed, or shared without the express written consent of the publisher. "
             "Connect: <b>linktr.ee/jachbit</b>",
             S("copy", fontSize=8, textColor=NAVY, leading=13)),
-        sp(8),
+        sp(10),
         Paragraph(
             "John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17",
             S("verses", fontName="Helvetica-Bold", fontSize=8, textColor=BLACK,
