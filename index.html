@@ -1863,20 +1863,25 @@ const PDF_CFG = {
   // Draw standard page footer (white bg, thin top rule, small grey text)
   footer(doc, W, H, label, pageNum) {
     const c = PDF_CFG.C;
+    // Rule line — 20mm from bottom edge (safe print margin)
     doc.setDrawColor(...c.navy);
     doc.setLineWidth(0.3);
-    doc.line(10, H - 9, W - 10, H - 9);
+    doc.line(10, H - 20, W - 10, H - 20);
+    // Label line
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(6);
+    doc.setFontSize(6.5);
     doc.setTextColor(...c.grey);
-    doc.text(`F.O.C.U.S.©  |  Jachbit 2026  |  ${label}`, W / 2, H - 4, { align: 'center' });
+    doc.text(`F.O.C.U.S.©  |  Jachbit 2026  |  ${label}`, W / 2, H - 15, { align: 'center' });
+    doc.setTextColor(...c.navy);
+    doc.text(`Page ${pageNum}`, W - 10, H - 15, { align: 'right' });
+    // Bible verses — spread with room to breathe
+    doc.setFontSize(6);
+    doc.setTextColor(...c.orange);
+    doc.text('✝  John 3:16   |   1 John 3:16   |   Matt 6:33   |   Jer 33:3   |   Prov 3:5-6   |   Prov 27:17', W / 2, H - 10, { align: 'center' });
+    // Copyright
     doc.setFontSize(5.5);
     doc.setTextColor(...c.grey);
-    doc.text('John 3:16  |  1 John 3:16  |  Matt 6:33  |  Jer 33:3  |  Prov 3:5-6  |  Prov 27:17', W / 2, H - 2.5, { align: 'center' });
-    doc.setFontSize(5);
-    doc.text('© 2026 Jachbit. All rights reserved. May not be copied or shared without express written consent of the publisher.  linktr.ee/jachbit', W / 2, H - 0.5, { align: 'center' });
-    doc.setTextColor(...c.navy);
-    doc.text(`Page ${pageNum}`, W - 10, H - 4, { align: 'right' });
+    doc.text('© 2026 Jachbit. All rights reserved. May not be copied or shared without express written consent of the publisher.  linktr.ee/jachbit', W / 2, H - 6, { align: 'center' });
   },
 
   // Standard table styles (no dark fills, no yellow rows)
@@ -2069,7 +2074,7 @@ function exportPlanPDF() {
   const LM = 14, TW = W - 28;
 
   function checkPage(y, need) {
-    if (y + need > H - 22) {
+    if (y + need > H - 28) {
       PDF_CFG.footer(doc, W, H, 'Basic Trading Plan', doc.internal.getNumberOfPages());
       doc.addPage();
       return 18;
